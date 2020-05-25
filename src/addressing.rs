@@ -4,10 +4,7 @@
 //TODO page crossing and extra cycles?
 
 use crate::memory::RAM;
-
-pub const CARRY_BIT  : u8 = 0b1;
-pub const ZERO_BIT   : u8 = 0b10;
-pub const NEGATIVE_BIT: u8 = 0b100_0000;
+use crate::flags::{set_carry, set_negative, set_zero};
 
 pub enum Operation{
     Add,
@@ -19,32 +16,7 @@ pub fn swap_bytes(in_val : u16) -> u16 {
     out_val
 }
 
-fn set_carry(in_val : u16, mut carry: u8) -> u8 {
-   
-    if in_val > 255 {
-        carry |= CARRY_BIT;
-    }
-  
-    carry
-}
 
-fn set_zero(in_val : u16, mut zero: u8) -> u8 {
-    
-    if in_val == 0 {
-        zero |= ZERO_BIT;
-    }
-            
-    zero
-}
-
-fn set_negative(in_val : u16, mut negative: u8) -> u8 {
-   
-    if in_val & 128 != 0 {
-        negative |= NEGATIVE_BIT;
-    }
-    
-    negative
-}
 
 fn match_on_op(mut in_val : u16, operand: u16, op : Operation) -> u16{
     match op{

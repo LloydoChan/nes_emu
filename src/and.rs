@@ -2,6 +2,7 @@
 
 use crate::addressing::{self, Operation};
 use crate::memory::RAM;
+use crate::flags;
 
 pub fn and_immediate(operand : u8, pc_reg : &mut u16, accumulator: &mut u8, mut status_flags: &mut u8){
     let temp = *accumulator as u16;
@@ -70,14 +71,14 @@ mod tests{
         and_zero_page(0, &mut pc_reg, &mut accumulator, &mut status, &mut test_memory);
         assert_eq!(pc_reg, 4);
         assert_eq!(accumulator, 0);
-        assert_eq!(status & addressing::ZERO_BIT, addressing::ZERO_BIT);
+        assert_eq!(status & flags::ZERO_BIT, flags::ZERO_BIT);
 
         accumulator = 244;
 
         and_zero_page_x(0, 122, &mut pc_reg, &mut accumulator, &mut status, &mut test_memory);
         assert_eq!(pc_reg, 6);
         assert_eq!(accumulator, 244);
-        assert_eq!(status & addressing::NEGATIVE_BIT, addressing::NEGATIVE_BIT);
+        assert_eq!(status & flags::NEGATIVE_BIT, flags::NEGATIVE_BIT);
 
         let operand = 514;
         let new_op = addressing::swap_bytes(operand);
@@ -87,14 +88,14 @@ mod tests{
 
         assert_eq!(pc_reg, 9);
         assert_eq!(accumulator, 4);
-        assert_eq!(status & addressing::NEGATIVE_BIT, 0);
-        assert_eq!(status & addressing::ZERO_BIT, 0);
+        assert_eq!(status & flags::NEGATIVE_BIT, 0);
+        assert_eq!(status & flags::ZERO_BIT, 0);
 
         and_absolute_reg(new_op, 2, &mut pc_reg, &mut accumulator, &mut status, &test_memory);
 
         assert_eq!(pc_reg, 12);
         assert_eq!(accumulator, 0);
-        assert_eq!(status & addressing::ZERO_BIT, addressing::ZERO_BIT);
+        assert_eq!(status & flags::ZERO_BIT, flags::ZERO_BIT);
 
         status = 0;
         accumulator = 2;
