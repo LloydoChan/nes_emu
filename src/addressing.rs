@@ -19,6 +19,28 @@ fn set_carry(in_val : u16, status_flag: Option<&mut u8>) {
     }
 }
 
+fn set_zero(in_val : u16, status_flag: Option<&mut u8>) {
+    match status_flag {
+        Some(zero) => {
+            if in_val == 0 {
+                *zero |= 2;
+            }
+        },
+        None => {}
+    }
+}
+
+fn set_negative(in_val : u16, status_flag: Option<&mut u8>) {
+    match status_flag {
+        Some(negative) => {
+            if in_val & 128 != 0 {
+                *negative |= 64;
+            }
+        },
+        None => {}
+    }
+}
+
 fn match_on_op(mut in_val : u16, operand: u16, op : Operation) -> u16{
     match op{
         Operation::Add => in_val += operand,
