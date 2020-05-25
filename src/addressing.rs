@@ -1,17 +1,28 @@
 // addressing.rs - contains some simple addressing mode functions 
 // so that they don't have to be repeated in all of the different operation types
 
+//TODO page crossing and extra cycles?
+
 use crate::memory::RAM;
+
+pub const CARRY_BIT  : u8 = 0b1;
+pub const ZERO_BIT   : u8 = 0b10;
+pub const NEGATIVE_BIT: u8 = 0b100_0000;
 
 pub enum Operation{
     Add,
     And
 }
 
+pub fn swap_bytes(in_val : u16) -> u16 {
+    let out_val = ( in_val << 8 ) | (in_val >> 8);
+    out_val
+}
+
 fn set_carry(in_val : u16, mut carry: u8) -> u8 {
    
     if in_val > 255 {
-        carry |= 1;
+        carry |= CARRY_BIT;
     }
   
     carry
@@ -20,7 +31,7 @@ fn set_carry(in_val : u16, mut carry: u8) -> u8 {
 fn set_zero(in_val : u16, mut zero: u8) -> u8 {
     
     if in_val == 0 {
-        zero |= 2;
+        zero |= ZERO_BIT;
     }
             
     zero
@@ -29,7 +40,7 @@ fn set_zero(in_val : u16, mut zero: u8) -> u8 {
 fn set_negative(in_val : u16, mut negative: u8) -> u8 {
    
     if in_val & 128 != 0 {
-        negative |= 64;
+        negative |= NEGATIVE_BIT;
     }
     
     negative
@@ -89,7 +100,8 @@ pub fn absolute(mut in_val : u16, operand: u16, memory: &RAM, status_flag: Optio
     // little endian so swap around the operand bytes
     let addr_one : u16 = (operand >> 8) & 0xFF;
     let addr_two : u16 = operand & 0xFF;
-    let addr : u16 = addr_one | addr_two;
+
+    let addr : u16 = (addr_two << 8 ) | addr_one;
     let mem_value = memory.read_mem_value(addr as u16);
 
     in_val = match_on_op(in_val, mem_value as u16, op);
@@ -104,9 +116,7 @@ pub fn absolute(mut in_val : u16, operand: u16, memory: &RAM, status_flag: Optio
 // used for both x and y variants
 pub fn absolute_reg(mut in_val : u16, reg : u16, operand: u16, memory: &RAM, status_flag: Option<&mut u8>, op : Operation) -> u8 {
     // little endian so swap around the operand bytes
-    let addr_one : u16 = (operand >> 8) & 0xFF;
-    let addr_two : u16 = operand & 0xFF;
-    let addr : u16 = addr_one | addr_two;
+    let addr = swap_bytes(operand);
     let mem_value = memory.read_mem_value(addr + reg as u16);
 
     in_val = match_on_op(in_val, mem_value as u16, op);
