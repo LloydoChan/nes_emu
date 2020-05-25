@@ -1,0 +1,90 @@
+//branch.rs - for all branch instructions, they use implied addressing, thankfully!
+
+// all take 8 bit signed relative offset, all branch on status of a flag...
+
+use crate::flags;
+
+
+
+fn flag_bit_check(flag_val : u8, flag_bit : u8, set: u8) -> bool{
+    flag_val & flag_bit != set
+}
+
+fn branch_on_flag(flag_val : u8, pc_reg : &mut u16, relative_addr : i16, flag_bit: u8, set: u8){
+
+    if flag_bit_check(flag_val, flag_bit, set) {
+        let mut temp_reg = *pc_reg as i16;
+        temp_reg += relative_addr;
+        *pc_reg = temp_reg as u16;
+    }
+
+    *pc_reg += 2;
+}
+
+pub fn branch_if_carry_set(flag_val : u8, mut pc_reg : &mut u16, relative_addr : i16){
+    branch_on_flag(flag_val, &mut pc_reg, relative_addr, flags::CARRY_BIT, 0)
+}
+
+pub fn branch_if_carry_clear(flag_val : u8, mut pc_reg : &mut u16, relative_addr : i16){
+    branch_on_flag(flag_val, &mut pc_reg, relative_addr, flags::CARRY_BIT, 1)
+}
+
+pub fn branch_if_equal(flag_val : u8, mut pc_reg : &mut u16, relative_addr : i16){
+    branch_on_flag(flag_val, &mut pc_reg, relative_addr, flags::ZERO_BIT, 0)
+}
+
+pub fn branch_if_not_equal(flag_val : u8, mut pc_reg : &mut u16, relative_addr : i16){
+    branch_on_flag(flag_val, &mut pc_reg, relative_addr, flags::ZERO_BIT, 1)
+}
+
+pub fn branch_if_minus(flag_val : u8, mut pc_reg : &mut u16, relative_addr : i16){
+    branch_on_flag(flag_val, &mut pc_reg, relative_addr, flags::NEGATIVE_BIT, 0)
+}
+
+pub fn branch_if_positive(flag_val : u8, mut pc_reg : &mut u16, relative_addr : i16){
+    branch_on_flag(flag_val, &mut pc_reg, relative_addr, flags::NEGATIVE_BIT, 1)
+}
+
+pub fn branch_if_overflow_set(flag_val : u8, mut pc_reg : &mut u16, relative_addr : i16){
+    branch_on_flag(flag_val, &mut pc_reg, relative_addr, flags::OVERFLOW_BIT, 0)
+}
+
+pub fn branch_if_overflow_clear(flag_val : u8, mut pc_reg : &mut u16, relative_addr : i16){
+    branch_on_flag(flag_val, &mut pc_reg, relative_addr, flags::OVERFLOW_BIT, 1)
+}
+
+#[cfg(test)]
+mod tests{
+    use super::*;
+
+    #[test]
+    fn test_branches() {
+        let mut flag_bits : u8 = 0;
+        flag_bits |= flags::CARRY_BIT;
+
+        let mut pc_reg : u16 = 256;
+
+        branch_if_carry_set(flag_bits, &mut pc_reg, -12);
+        assert_eq!(pc_reg, 246);
+
+        flag_bits ^= flags::CARRY_BIT;
+        branch_if_carry_set(flag_bits, &mut pc_reg, -12);
+        assert_eq!(pc_reg, 248);
+
+        branch_if_carry_clear(flag_bits, &mut pc_reg, -12);
+        assert_eq!(pc_reg, 238);
+
+        flag_bits |= flags::ZERO_BIT;
+        branch_if_equal(flag_bits, &mut pc_reg, 28);
+        assert_eq!(pc_reg, 268);
+
+        flag_bits ^= flags::ZERO_BIT;
+        branch_if_equal(flag_bits, &mut pc_reg, 28);
+        assert_eq!(pc_reg, 270);
+
+
+        flag_bits |= flags::NEGATIVE_BIT;
+        branch_if_minus(flag_bits, &mut pc_reg, -38);
+        assert_eq!(pc_reg, 234);
+    }
+}
