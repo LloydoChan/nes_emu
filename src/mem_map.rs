@@ -3,14 +3,14 @@
 pub const INTERNAL_RAM_START : usize = 0x0;
 pub const INTERNAL_RAM_END : usize = 0x7FF;
 
-pub const INTERNAL_RAM_MIRROR_ONE_START : usize = 0x0;
-pub const INTERNAL_RAM_MIRROR_ONE_END   : usize = 0x7FF;
+pub const INTERNAL_RAM_MIRROR_ONE_START : usize = 0x800;
+pub const INTERNAL_RAM_MIRROR_ONE_END   : usize = 0xFFF;
 
-pub const INTERNAL_RAM_MIRROR_TWO_START : usize = 0x0;
-pub const INTERNAL_RAM_MIRROR_TWO_END   : usize = 0x7FF;
+pub const INTERNAL_RAM_MIRROR_TWO_START : usize = 0x1000;
+pub const INTERNAL_RAM_MIRROR_TWO_END   : usize = 0x17FF;
 
-pub const INTERNAL_RAM_MIRROR_THREE_START : usize = 0x0;
-pub const INTERNAL_RAM_MIRROR_THREE_END   : usize = 0x7FF;
+pub const INTERNAL_RAM_MIRROR_THREE_START : usize = 0x1800;
+pub const INTERNAL_RAM_MIRROR_THREE_END   : usize = 0x1FFF;
 
 pub const PPU_REGISTERS_START : usize = 0x2000;
 pub const PPU_REGISTERS_END : usize = 0x2007;

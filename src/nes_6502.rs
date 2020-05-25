@@ -9,7 +9,8 @@ struct Nes6502{
     y : u8,
     status_flags : u8, // only need 7 bits of this
     stack_pointer : u8,
-    pc_counter : u16
+    pc_counter : u16,
+    cycles_until_next : u8
 }
 
 impl Nes6502 {
@@ -20,7 +21,8 @@ impl Nes6502 {
             y : 0,
             status_flags : 0xFD, // only need 7 bits of this
             stack_pointer : 0,
-            pc_counter : 0x34
+            pc_counter : 0x34,
+            cycles_until_next : 0
         }
     }
 }
