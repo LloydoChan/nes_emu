@@ -4,49 +4,49 @@
 
 // TODO change mem reads! so that they use mem control / mapper correctly
 
-use crate::addressing;
+use crate::addressing::{self, Operation};
 use crate::memory::RAM;
 
 
 pub fn adc_immediate(operand : u8, pc_reg : &mut u16, accumulator: &mut u8, mut status_flags: &mut u8){
     let temp = *accumulator as u16;
-    *accumulator = addressing::immediate(temp as u16, operand as u16, Some(&mut status_flags));
+    *accumulator = addressing::immediate(temp as u16, operand as u16, Some(&mut status_flags), Operation::Add);
     *pc_reg += 1;
 }
 
 pub fn adc_zero_page(operand : u8, pc_reg : &mut u16, accumulator: &mut u8, mut status_flags: &mut u8, memory : &RAM){
     let temp = *accumulator as u16;
-    *accumulator = addressing::zero_page(temp, operand, memory, Some(&mut status_flags));
+    *accumulator = addressing::zero_page(temp, operand, memory, Some(&mut status_flags), Operation::Add);
     *pc_reg += 1;
 }
 
 pub fn adc_zero_page_x(operand : u8, x_reg : u8, pc_reg : &mut u16, accumulator: &mut u8, mut status_flags: &mut u8, memory : &RAM){
     let temp = *accumulator as u16;
-    *accumulator = addressing::zero_page_x(temp, x_reg, operand, memory, Some(&mut status_flags));
+    *accumulator = addressing::zero_page_x(temp, x_reg, operand, memory, Some(&mut status_flags), Operation::Add);
     *pc_reg += 1;
 }
 
 pub fn adc_absolute(operand : u16, pc_reg : &mut u16, accumulator: &mut u8, mut status_flags: &mut u8, memory : &RAM){
     let temp = *accumulator as u16;
-    *accumulator = addressing::absolute(temp, operand, memory, Some(&mut status_flags));
+    *accumulator = addressing::absolute(temp, operand, memory, Some(&mut status_flags), Operation::Add);
     *pc_reg += 3;
 }
 
 pub fn adc_absolute_reg(operand : u16, reg : u8, pc_reg : &mut u16, accumulator: &mut u8, mut status_flags: &mut u8, memory : &RAM){
     let temp = *accumulator as u16;
-    *accumulator = addressing::absolute_reg(temp, reg as u16, operand, memory, Some(&mut status_flags));
+    *accumulator = addressing::absolute_reg(temp, reg as u16, operand, memory, Some(&mut status_flags), Operation::Add);
     *pc_reg += 3;
 }
 
 pub fn adc_indexed_indirect(operand : u8, x_val : u8, pc_reg : &mut u16, accumulator: &mut u8, mut status_flags: &mut u8, memory : &RAM){
     let temp = *accumulator as u16;
-    *accumulator = addressing::indexed_indirect(temp, x_val, operand, memory, Some(&mut status_flags));
+    *accumulator = addressing::indexed_indirect(temp, x_val, operand, memory, Some(&mut status_flags), Operation::Add);
     *pc_reg += 2;
 }
 
 pub fn adc_indirect_indexed(operand : u16, y_val : u8, pc_reg : &mut u16, accumulator: &mut u8, mut status_flags: &mut u8, memory : &RAM){
     let temp = *accumulator as u16;
-    *accumulator = addressing::indirect_indexed(temp, y_val, operand, memory, Some(&mut status_flags));
+    *accumulator = addressing::indirect_indexed(temp, y_val, operand, memory, Some(&mut status_flags), Operation::Add);
     *pc_reg += 2;
 }
 
