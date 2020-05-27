@@ -4,11 +4,11 @@
 //TODO page crossing and extra cycles?
 
 use crate::memory::RAM;
-use crate::flags::{set_carry, set_negative, set_zero};
+use crate::flags::*;
 
 pub enum Operation{
     Add,
-    And
+    And,
 }
 
 pub fn swap_bytes(in_val : u16) -> u16 {
@@ -16,9 +16,8 @@ pub fn swap_bytes(in_val : u16) -> u16 {
     out_val
 }
 
-
-
 fn match_on_op(mut in_val : u16, operand: u16, op : Operation) -> u16{
+
     match op{
         Operation::Add => in_val += operand,
         Operation::And => in_val &= operand,
@@ -28,20 +27,29 @@ fn match_on_op(mut in_val : u16, operand: u16, op : Operation) -> u16{
     in_val
 }
 
-fn set_flags(result : u16, status_flag: &mut u8){
-    *status_flag = set_carry(result, *status_flag);
-    *status_flag = set_zero(result, *status_flag);
-    *status_flag = set_negative(result, *status_flag);
+fn set_flags(in_val: u16, status_flag: Option<&mut u8>){
+   
+    match status_flag{
+        Some(regs) => {
+            if in_val == 0 { 
+                set_zero(regs) 
+            }
+            if in_val > 256 {
+                set_carry(regs)
+            }
+            if (in_val & 0x80) != 0 {
+                set_negative(regs)
+            }
+            // TODO check "if sign bit is incorrect" for overflow
+        },
+         None => {}
+    }
 }
 
 pub fn immediate(mut in_val : u16, operand: u16, status_flag: Option<&mut u8>, op : Operation) -> u8 {
 
     in_val = match_on_op(in_val, operand, op);
-    match status_flag{
-        Some(regs) => set_flags(in_val, regs),
-        None => {}
-    }
-
+    set_flags(in_val, status_flag);
     in_val as u8
 }
 
@@ -49,10 +57,7 @@ pub fn zero_page(mut in_val : u16, operand: u8, memory: &RAM, status_flag: Optio
     let mem_value = memory.read_mem_value(operand as u16);
 
     in_val = match_on_op(in_val, mem_value as u16, op);
-    match status_flag{
-        Some(regs) => set_flags(in_val, regs),
-        None => {}
-    }
+    set_flags(in_val, status_flag);
     in_val as u8
 }
 
@@ -61,10 +66,7 @@ pub fn zero_page_x(mut in_val : u16, x_val : u8, operand: u8, memory: &RAM, stat
     let mem_value = memory.read_mem_value(addr as u16);
 
     in_val = match_on_op(in_val, mem_value as u16, op);
-    match status_flag{
-        Some(regs) => set_flags(in_val, regs),
-        None => {}
-    }
+    set_flags(in_val, status_flag);
     in_val as u8    
 }
 
@@ -77,10 +79,7 @@ pub fn absolute(mut in_val : u16, operand: u16, memory: &RAM, status_flag: Optio
     let mem_value = memory.read_mem_value(addr as u16);
 
     in_val = match_on_op(in_val, mem_value as u16, op);
-    match status_flag{
-        Some(regs) => set_flags(in_val, regs),
-        None => {}
-    }
+    set_flags(in_val, status_flag);
 
     in_val as u8    
 }
@@ -92,10 +91,7 @@ pub fn absolute_reg(mut in_val : u16, reg : u16, operand: u16, memory: &RAM, sta
     let mem_value = memory.read_mem_value(addr + reg as u16);
 
     in_val = match_on_op(in_val, mem_value as u16, op);
-    match status_flag{
-        Some(regs) => set_flags(in_val, regs),
-        None => {}
-    }
+    set_flags(in_val, status_flag);
 
     in_val as u8    
 }
@@ -106,10 +102,7 @@ pub fn indexed_indirect(mut in_val : u16, x_val : u8, operand: u8, memory: &RAM,
     let mem_value = memory.read_mem_value(addr as u16);
 
     in_val = match_on_op(in_val, mem_value as u16, op);
-    match status_flag{
-        Some(regs) => set_flags(in_val, regs),
-        None => {}
-    }
+    set_flags(in_val, status_flag);
 
     in_val as u8    
 }
@@ -120,11 +113,7 @@ pub fn indirect_indexed(mut in_val : u16, y_val : u8, operand: u16, memory: &RAM
     let mem_value = memory.read_mem_value(addr as u16);
 
     in_val = match_on_op(in_val, mem_value as u16, op);
-    
-    match status_flag{
-        Some(regs) => set_flags(in_val, regs),
-        None => {}
-    }
+    set_flags(in_val, status_flag);
 
     in_val as u8    
 }

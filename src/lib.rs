@@ -6,4 +6,5 @@ pub mod and;
 pub mod addressing;
 pub mod flags;
 pub mod branch;
+pub mod asl;
 

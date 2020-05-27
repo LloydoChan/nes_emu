@@ -8,49 +8,47 @@ pub const BREAK_CMD_BIT : u8 = 0b1_0000;
 pub const OVERFLOW_BIT : u8 = 0b10_0000;
 pub const NEGATIVE_BIT: u8 = 0b100_0000;
 
-pub fn set_carry(in_val : u16, mut carry: u8) -> u8 {
-   
-    if in_val > 255 {
-        carry |= CARRY_BIT;
-    }
-  
-    carry
+
+fn set_flag(flags: &mut u8, bit_index: u8){
+    *flags |= bit_index;
 }
 
-pub fn set_zero(in_val : u16, mut zero: u8) -> u8 {
-    
-    if in_val == 0 {
-        zero |= ZERO_BIT;
-    }
-            
-    zero
+pub fn set_carry(mut flags: &mut u8){
+   set_flag(flags, CARRY_BIT);
 }
 
-pub fn set_negative(in_val : u16, mut negative: u8) -> u8 {
-   
-    if in_val & 128 != 0 {
-        negative |= NEGATIVE_BIT;
-    }
-    
-    negative
+pub fn set_zero(mut flags: &mut u8){
+    set_flag(flags, ZERO_BIT);
+}
+
+pub fn set_negative(mut flags: &mut u8){
+    set_flag(flags, NEGATIVE_BIT);
+}
+
+pub fn set_decimal(mut flags: &mut u8){
+    set_flag(flags, DECIMAL_MODE_BIT);
+}
+
+pub fn set_interrupt_disable(mut flags: &mut u8){
+    set_flag(flags, INTERRUPT_DISABLE_BIT);
 }
 
 fn clear_flag(flags: &mut u8, bit_index: u8){
     *flags ^= bit_index;
 }
 
-fn clear_carry(mut flags: &mut u8){
+pub fn clear_carry(mut flags: &mut u8){
     clear_flag(&mut flags, CARRY_BIT);
 }
 
-fn clear_overflow(mut flags: &mut u8){
+pub fn clear_overflow(mut flags: &mut u8){
     clear_flag(&mut flags, OVERFLOW_BIT);
 }
 
-fn clear_interrupt_disable(mut flags: &mut u8){
+pub fn clear_interrupt_disable(mut flags: &mut u8){
     clear_flag(&mut flags, INTERRUPT_DISABLE_BIT);
 }
 
-fn clear_decimal_mode(mut flags: &mut u8){
+pub fn clear_decimal_mode(mut flags: &mut u8){
     clear_flag(&mut flags, DECIMAL_MODE_BIT);
 }
