@@ -4,6 +4,7 @@ pub mod memory;
 pub mod adc;
 pub mod and;
 pub mod addressing;
+pub mod shift_addr;
 pub mod flags;
 pub mod branch;
 pub mod asl;

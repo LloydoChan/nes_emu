@@ -45,3 +45,8 @@ fn check_address(address: usize){
         _=> {panic!("");}
     }
 }
+
+pub fn swap_bytes(in_val : u16) -> u16 {
+    let out_val = ( in_val << 8 ) | (in_val >> 8);
+    out_val
+}
