@@ -3,7 +3,7 @@
 
 //TODO page crossing and extra cycles?
 
-use crate::memory::RAM;
+use crate::memory::*;
 use crate::flags::*;
 
 pub enum Operation{
@@ -11,10 +11,6 @@ pub enum Operation{
     And,
 }
 
-pub fn swap_bytes(in_val : u16) -> u16 {
-    let out_val = ( in_val << 8 ) | (in_val >> 8);
-    out_val
-}
 
 fn match_on_op(mut in_val : u16, operand: u16, op : Operation) -> u16{
 

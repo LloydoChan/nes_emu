@@ -1,7 +1,7 @@
 //and.rs - for logical AND instructions
 
 use crate::addressing::{self, Operation};
-use crate::memory::RAM;
+use crate::memory::*;
 use crate::flags;
 
 pub fn and_immediate(operand : u8, pc_reg : &mut u16, accumulator: &mut u8, mut status_flags: &mut u8){
@@ -81,7 +81,7 @@ mod tests{
         assert_eq!(status & flags::NEGATIVE_BIT, flags::NEGATIVE_BIT);
 
         let operand = 514;
-        let new_op = addressing::swap_bytes(operand);
+        let new_op = swap_bytes(operand);
         status = 0;
 
         and_absolute(new_op, &mut pc_reg, &mut accumulator, &mut status, &test_memory);

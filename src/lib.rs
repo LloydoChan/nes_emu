@@ -8,4 +8,5 @@ pub mod shift_addr;
 pub mod flags;
 pub mod branch;
 pub mod asl;
+pub mod lsr;
 
