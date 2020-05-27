@@ -21,36 +21,44 @@ fn branch_on_flag(flag_val : u8, pc_reg : &mut u16, relative_addr : i16, flag_bi
     *pc_reg += 2;
 }
 
-pub fn branch_if_carry_set(flag_val : u8, mut pc_reg : &mut u16, relative_addr : i16){
-    branch_on_flag(flag_val, &mut pc_reg, relative_addr, flags::CARRY_BIT, 0)
+pub fn branch_if_carry_set(flag_val : u8, mut pc_reg : &mut u16, relative_addr : i16, cycles : &mut u8){
+    branch_on_flag(flag_val, &mut pc_reg, relative_addr, flags::CARRY_BIT, 0);
+    *cycles = 2;
 }
 
-pub fn branch_if_carry_clear(flag_val : u8, mut pc_reg : &mut u16, relative_addr : i16){
-    branch_on_flag(flag_val, &mut pc_reg, relative_addr, flags::CARRY_BIT, 1)
+pub fn branch_if_carry_clear(flag_val : u8, mut pc_reg : &mut u16, relative_addr : i16, cycles : &mut u8){
+    branch_on_flag(flag_val, &mut pc_reg, relative_addr, flags::CARRY_BIT, 1);
+    *cycles = 2;
 }
 
-pub fn branch_if_equal(flag_val : u8, mut pc_reg : &mut u16, relative_addr : i16){
-    branch_on_flag(flag_val, &mut pc_reg, relative_addr, flags::ZERO_BIT, 0)
+pub fn branch_if_equal(flag_val : u8, mut pc_reg : &mut u16, relative_addr : i16, cycles : &mut u8){
+    branch_on_flag(flag_val, &mut pc_reg, relative_addr, flags::ZERO_BIT, 0);
+    *cycles = 2;
 }
 
-pub fn branch_if_not_equal(flag_val : u8, mut pc_reg : &mut u16, relative_addr : i16){
-    branch_on_flag(flag_val, &mut pc_reg, relative_addr, flags::ZERO_BIT, 1)
+pub fn branch_if_not_equal(flag_val : u8, mut pc_reg : &mut u16, relative_addr : i16, cycles : &mut u8){
+    branch_on_flag(flag_val, &mut pc_reg, relative_addr, flags::ZERO_BIT, 1);
+    *cycles = 2;
 }
 
-pub fn branch_if_minus(flag_val : u8, mut pc_reg : &mut u16, relative_addr : i16){
-    branch_on_flag(flag_val, &mut pc_reg, relative_addr, flags::NEGATIVE_BIT, 0)
+pub fn branch_if_minus(flag_val : u8, mut pc_reg : &mut u16, relative_addr : i16, cycles : &mut u8){
+    branch_on_flag(flag_val, &mut pc_reg, relative_addr, flags::NEGATIVE_BIT, 0);
+    *cycles = 2;
 }
 
-pub fn branch_if_positive(flag_val : u8, mut pc_reg : &mut u16, relative_addr : i16){
-    branch_on_flag(flag_val, &mut pc_reg, relative_addr, flags::NEGATIVE_BIT, 1)
+pub fn branch_if_positive(flag_val : u8, mut pc_reg : &mut u16, relative_addr : i16, cycles : &mut u8){
+    branch_on_flag(flag_val, &mut pc_reg, relative_addr, flags::NEGATIVE_BIT, 1);
+    *cycles = 2;
 }
 
-pub fn branch_if_overflow_set(flag_val : u8, mut pc_reg : &mut u16, relative_addr : i16){
-    branch_on_flag(flag_val, &mut pc_reg, relative_addr, flags::OVERFLOW_BIT, 0)
+pub fn branch_if_overflow_set(flag_val : u8, mut pc_reg : &mut u16, relative_addr : i16, cycles : &mut u8){
+    branch_on_flag(flag_val, &mut pc_reg, relative_addr, flags::OVERFLOW_BIT, 0);
+    *cycles = 2;
 }
 
-pub fn branch_if_overflow_clear(flag_val : u8, mut pc_reg : &mut u16, relative_addr : i16){
-    branch_on_flag(flag_val, &mut pc_reg, relative_addr, flags::OVERFLOW_BIT, 1)
+pub fn branch_if_overflow_clear(flag_val : u8, mut pc_reg : &mut u16, relative_addr : i16, cycles : &mut u8){
+    branch_on_flag(flag_val, &mut pc_reg, relative_addr, flags::OVERFLOW_BIT, 1);
+    *cycles = 2;
 }
 
 #[cfg(test)]
@@ -63,28 +71,29 @@ mod tests{
         flag_bits |= flags::CARRY_BIT;
 
         let mut pc_reg : u16 = 256;
+        let mut cycles = 0;
 
-        branch_if_carry_set(flag_bits, &mut pc_reg, -12);
+        branch_if_carry_set(flag_bits, &mut pc_reg, -12, &mut cycles);
         assert_eq!(pc_reg, 246);
 
         flag_bits ^= flags::CARRY_BIT;
-        branch_if_carry_set(flag_bits, &mut pc_reg, -12);
+        branch_if_carry_set(flag_bits, &mut pc_reg, -12, &mut cycles);
         assert_eq!(pc_reg, 248);
 
-        branch_if_carry_clear(flag_bits, &mut pc_reg, -12);
+        branch_if_carry_clear(flag_bits, &mut pc_reg, -12, &mut cycles);
         assert_eq!(pc_reg, 238);
 
         flag_bits |= flags::ZERO_BIT;
-        branch_if_equal(flag_bits, &mut pc_reg, 28);
+        branch_if_equal(flag_bits, &mut pc_reg, 28, &mut cycles);
         assert_eq!(pc_reg, 268);
 
         flag_bits ^= flags::ZERO_BIT;
-        branch_if_equal(flag_bits, &mut pc_reg, 28);
+        branch_if_equal(flag_bits, &mut pc_reg, 28, &mut cycles);
         assert_eq!(pc_reg, 270);
 
 
         flag_bits |= flags::NEGATIVE_BIT;
-        branch_if_minus(flag_bits, &mut pc_reg, -38);
+        branch_if_minus(flag_bits, &mut pc_reg, -38, &mut cycles);
         assert_eq!(pc_reg, 234);
     }
 }

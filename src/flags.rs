@@ -13,8 +13,8 @@ fn set_flag(flags: &mut u8, bit_index: u8){
     *flags |= bit_index;
 }
 
-pub fn set_carry(mut flags: &mut u8){
-   set_flag(flags, CARRY_BIT);
+pub fn set_carry(mut flags: &mut u8, cycles: Option<&u8>){
+   set_flag(flags, CARRY_BIT); 
 }
 
 pub fn set_zero(mut flags: &mut u8){
