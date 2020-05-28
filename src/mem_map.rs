@@ -1,5 +1,8 @@
 // the laborious task of writing the memory map, and it's many ranges and behaviour depending on the address being written to!
 
+pub const STACK_START : usize = 0x100;
+pub const STACK_END : usize = 0x1FF;
+
 pub const INTERNAL_RAM_START : usize = 0x0;
 pub const INTERNAL_RAM_END : usize = 0x7FF;
 
