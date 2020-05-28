@@ -67,6 +67,60 @@ pub fn break_force_interrupt(pc_reg: &mut u16, status: &mut u8, stack_ptr: &mut 
     *status |= BREAK_CMD_BIT;
 }
 
+pub fn push_acc_status_on_stack(pc_reg: &mut u16, accumulator : u8, stack_ptr: &mut u8, test_ram: &mut RAM, cycles : & mut u8){
+    *pc_reg += 1;
+    *cycles = 3;
+    test_ram.push_value_on_stack(stack_ptr, accumulator);
+}
+
+pub fn pull_acc_from_stack(pc_reg: &mut u16, accumulator : &mut u8, status: &mut u8, stack_ptr: &mut u8, test_ram: &mut RAM, cycles : & mut u8){
+    *pc_reg += 1;
+    *cycles = 4;
+
+    *accumulator = test_ram.pop_value_off_stack(stack_ptr);
+
+    if *accumulator == 0 {
+        *status |= ZERO_BIT;
+    }
+
+    if (*accumulator & 0x8) != 0 {
+        *status |= NEGATIVE_BIT;
+    }
+}
+
+pub fn pull_status_from_stack(pc_reg: &mut u16, status: &mut u8, stack_ptr: &mut u8, test_ram: &mut RAM, cycles : & mut u8){
+    *pc_reg += 1;
+    *cycles = 4;
+
+    *status = test_ram.pop_value_off_stack(stack_ptr);
+}
+
+// transfer_source_to_dest is intended for the many variants of transfer functions, like TAY Transfer Accumulator to Y
+// only expception is transfer x to stack pointer, as there are no flags set
+pub fn transfer_source_to_dest(pc_reg: &mut u16, source : u8, dest : &mut u8, status: &mut u8, cycles : & mut u8){
+    *pc_reg += 1;
+    *cycles = 2;
+
+    *dest = source;
+
+    if *dest == 0 {
+        *status |= ZERO_BIT;
+    }
+
+    if (*dest & 0x8) != 0 {
+        *status |= NEGATIVE_BIT;
+    }
+}
+
+pub fn transfer_x_to_stack_pointer(pc_reg: &mut u16, x : u8, stack_ptr : &mut u8, cycles : & mut u8){
+    *pc_reg += 1;
+    *cycles = 2;
+
+    *stack_ptr = x;
+}
+
+
+
 #[cfg(test)]
 mod tests{
     #[test]
