@@ -1,4 +1,5 @@
 //flags.rs - code dealing with register flags
+// TODO add cycle manip
 
 pub const CARRY_BIT  : u8 = 0b1;
 pub const ZERO_BIT   : u8 = 0b10;
@@ -13,7 +14,7 @@ fn set_flag(flags: &mut u8, bit_index: u8){
     *flags |= bit_index;
 }
 
-pub fn set_carry(mut flags: &mut u8, cycles: Option<&u8>){
+pub fn set_carry(mut flags: &mut u8){
    set_flag(flags, CARRY_BIT); 
 }
 
@@ -34,7 +35,7 @@ pub fn set_interrupt_disable(mut flags: &mut u8){
 }
 
 fn clear_flag(flags: &mut u8, bit_index: u8){
-    *flags ^= bit_index;
+    *flags &= !bit_index;
 }
 
 pub fn clear_carry(mut flags: &mut u8){

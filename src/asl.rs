@@ -1,4 +1,4 @@
-// //asl.rs arithmetic shift left
+//asl.rs arithmetic shift left
 
 use crate::memory::*;
 use crate::shift_addr::*;
