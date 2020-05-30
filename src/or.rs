@@ -5,31 +5,31 @@ use crate::memory::RAM;
 
 
 pub fn xor_immediate(operand : u8, pc_reg : &mut u16, accumulator: u8, mut status_flags: &mut u8, cycles_until_next : &mut u8){
-    addressing::immediate(accumulator as u16, operand as u16, &mut status_flags, Operation::Eor);
+    addressing::immediate(accumulator, operand, &mut status_flags, Operation::Eor);
     *pc_reg += 2;
     *cycles_until_next = 2;
 }
 
 pub fn xor_zero_page(operand : u8, pc_reg : &mut u16, accumulator: u8, mut status_flags: &mut u8, memory : &RAM, cycles_until_next : &mut u8){
-    addressing::zero_page(accumulator as u16, operand, memory, &mut status_flags, Operation::Eor);
+    addressing::zero_page(accumulator, operand, memory, &mut status_flags, Operation::Eor);
     *pc_reg += 2;
     *cycles_until_next = 3;
 }
 
 pub fn xor_zero_page_x(operand : u8, x_reg : u8, pc_reg : &mut u16, accumulator: u8, mut status_flags: &mut u8, memory : &RAM, cycles_until_next : &mut u8){
-    addressing::zero_page_x(accumulator as u16, x_reg, operand, memory, &mut status_flags, Operation::Eor);
+    addressing::zero_page_x(accumulator, x_reg, operand, memory, &mut status_flags, Operation::Eor);
     *pc_reg += 2;
     *cycles_until_next = 4;
 }
 
 pub fn xor_absolute(operand : u16, pc_reg : &mut u16, accumulator: u8, mut status_flags: &mut u8, memory : &RAM, cycles_until_next : &mut u8){
-    addressing::absolute(accumulator as u16, operand, memory, &mut status_flags, Operation::Eor);
+    addressing::absolute(accumulator, operand, memory, &mut status_flags, Operation::Eor);
     *pc_reg += 3;
     *cycles_until_next = 4;
 }
 
 pub fn xor_absolute_reg(operand : u16, reg : u8, pc_reg : &mut u16, accumulator: u8, mut status_flags: &mut u8, memory : &RAM, cycles_until_next : &mut u8){
-    addressing::absolute_reg(accumulator as u16, reg as u16, operand, memory, &mut status_flags, Operation::Eor);
+    addressing::absolute_reg(accumulator, reg, operand, memory, &mut status_flags, Operation::Eor);
     *pc_reg += 3;
     *cycles_until_next = 4;
 }
@@ -40,39 +40,38 @@ pub fn xor_indexed_indirect(operand : u8, x_val : u8, pc_reg : &mut u16, accumul
     *cycles_until_next = 6;
 }
 
-pub fn xor_indirect_indexed(operand : u16, y_val : u8, pc_reg : &mut u16, accumulator: &mut u8, mut status_flags: &mut u8, memory : &RAM, cycles_until_next : &mut u8){
-    let temp = *accumulator as u16;
-    *accumulator = addressing::indirect_indexed(temp, y_val, operand, memory, &mut status_flags, Operation::Eor);
+pub fn xor_indirect_indexed(operand : u16, y_val : u8, pc_reg : &mut u16, accumulator: u8, mut status_flags: &mut u8, memory : &RAM, cycles_until_next : &mut u8){
+    addressing::indirect_indexed(accumulator, y_val, operand, memory, &mut status_flags, Operation::Eor);
     *pc_reg += 2;
     *cycles_until_next = 5;
 }
 
 pub fn ior_immediate(operand : u8, pc_reg : &mut u16, accumulator: u8, mut status_flags: &mut u8, cycles_until_next : &mut u8){
-    addressing::immediate(accumulator as u16, operand as u16, &mut status_flags, Operation::Ior);
+    addressing::immediate(accumulator, operand, &mut status_flags, Operation::Ior);
     *pc_reg += 2;
     *cycles_until_next = 2;
 }
 
 pub fn ior_zero_page(operand : u8, pc_reg : &mut u16, accumulator: u8, mut status_flags: &mut u8, memory : &RAM, cycles_until_next : &mut u8){
-    addressing::zero_page(accumulator as u16, operand, memory, &mut status_flags, Operation::Ior);
+    addressing::zero_page(accumulator, operand, memory, &mut status_flags, Operation::Ior);
     *pc_reg += 2;
     *cycles_until_next = 3;
 }
 
 pub fn ior_zero_page_x(operand : u8, x_reg : u8, pc_reg : &mut u16, accumulator: u8, mut status_flags: &mut u8, memory : &RAM, cycles_until_next : &mut u8){
-    addressing::zero_page_x(accumulator as u16, x_reg, operand, memory, &mut status_flags, Operation::Ior);
+    addressing::zero_page_x(accumulator, x_reg, operand, memory, &mut status_flags, Operation::Ior);
     *pc_reg += 2;
     *cycles_until_next = 4;
 }
 
 pub fn ior_absolute(operand : u16, pc_reg : &mut u16, accumulator: u8, mut status_flags: &mut u8, memory : &RAM, cycles_until_next : &mut u8){
-    addressing::absolute(accumulator as u16, operand, memory, &mut status_flags, Operation::Ior);
+    addressing::absolute(accumulator, operand, memory, &mut status_flags, Operation::Ior);
     *pc_reg += 3;
     *cycles_until_next = 4;
 }
 
 pub fn ior_absolute_reg(operand : u16, reg : u8, pc_reg : &mut u16, accumulator: u8, mut status_flags: &mut u8, memory : &RAM, cycles_until_next : &mut u8){
-    addressing::absolute_reg(accumulator as u16, reg as u16, operand, memory, &mut status_flags, Operation::Ior);
+    addressing::absolute_reg(accumulator, reg, operand, memory, &mut status_flags, Operation::Ior);
     *pc_reg += 3;
     *cycles_until_next = 4;
 }
@@ -83,9 +82,8 @@ pub fn ior_indexed_indirect(operand : u8, x_val : u8, pc_reg : &mut u16, accumul
     *cycles_until_next = 6;
 }
 
-pub fn ior_indirect_indexed(operand : u16, y_val : u8, pc_reg : &mut u16, accumulator: &mut u8, mut status_flags: &mut u8, memory : &RAM, cycles_until_next : &mut u8){
-    let temp = *accumulator as u16;
-    *accumulator = addressing::indirect_indexed(temp, y_val, operand, memory, &mut status_flags, Operation::Ior);
+pub fn ior_indirect_indexed(operand : u16, y_val : u8, pc_reg : &mut u16, accumulator: u8, mut status_flags: &mut u8, memory : &RAM, cycles_until_next : &mut u8){
+    addressing::indirect_indexed(accumulator, y_val, operand, memory, &mut status_flags, Operation::Ior);
     *pc_reg += 2;
     *cycles_until_next = 5;
 }
@@ -93,7 +91,7 @@ pub fn ior_indirect_indexed(operand : u16, y_val : u8, pc_reg : &mut u16, accumu
 #[cfg(test)]
 mod tests{
     #[test]
-    pub fn or_tests(){
+    pub fn test_or(){
 
     }
 }

@@ -5,31 +5,31 @@ use crate::memory::*;
 use crate::flags;
 
 pub fn and_immediate(operand : u8, pc_reg : &mut u16, accumulator: u8, status_flags: &mut u8, cycles_until_next : &mut u8){
-    addressing::immediate(accumulator as u16, operand as u16, status_flags, Operation::And);
+    addressing::immediate(accumulator, operand, status_flags, Operation::And);
     *pc_reg += 2;
     *cycles_until_next = 2;
 }
 
 pub fn and_zero_page(operand : u8, pc_reg : &mut u16, accumulator: u8, status_flags: &mut u8, memory : &RAM, cycles_until_next : &mut u8){
-    addressing::zero_page(accumulator as u16, operand, memory, status_flags, Operation::And);
+    addressing::zero_page(accumulator, operand, memory, status_flags, Operation::And);
     *pc_reg += 2;
     *cycles_until_next = 3;
 }
 
 pub fn and_zero_page_x(operand : u8, x_reg : u8, pc_reg : &mut u16, accumulator: u8, status_flags: &mut u8, memory : &RAM, cycles_until_next : &mut u8){
-    addressing::zero_page_x(accumulator as u16, x_reg, operand, memory,  status_flags, Operation::And);
+    addressing::zero_page_x(accumulator, x_reg, operand, memory,  status_flags, Operation::And);
     *pc_reg += 2;
     *cycles_until_next = 4;
 }
 
 pub fn and_absolute(operand : u16, pc_reg : &mut u16, accumulator: u8, status_flags: &mut u8, memory : &RAM, cycles_until_next : &mut u8){
-    addressing::absolute(accumulator as u16, operand, memory, status_flags, Operation::And);
+    addressing::absolute(accumulator, operand, memory, status_flags, Operation::And);
     *pc_reg += 3;
     *cycles_until_next = 4;
 }
 
 pub fn and_absolute_reg(operand : u16, reg : u8, pc_reg : &mut u16, accumulator: u8, status_flags: &mut u8, memory : &RAM, cycles_until_next : &mut u8){
-    addressing::absolute_reg(accumulator as u16, reg as u16, operand, memory, status_flags, Operation::And);
+    addressing::absolute_reg(accumulator, reg, operand, memory, status_flags, Operation::And);
     *pc_reg += 3;
     *cycles_until_next = 4;
 }
@@ -41,7 +41,7 @@ pub fn and_indexed_indirect(operand : u8, x_val : u8, pc_reg : &mut u16, accumul
 }
 
 pub fn and_indirect_indexed(operand : u16, y_val : u8, pc_reg : &mut u16, accumulator:  u8, status_flags: &mut u8, memory : &RAM, cycles_until_next : &mut u8){
-    addressing::indirect_indexed(accumulator as u16, y_val, operand, memory, status_flags, Operation::And);
+    addressing::indirect_indexed(accumulator, y_val, operand, memory, status_flags, Operation::And);
     *pc_reg += 2;
     *cycles_until_next = 5;
 }

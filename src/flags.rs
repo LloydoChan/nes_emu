@@ -30,6 +30,10 @@ pub fn set_decimal(mut flags: &mut u8){
     set_flag(flags, DECIMAL_MODE_BIT);
 }
 
+pub fn set_overflow(mut flags: &mut u8){
+    set_flag(flags, OVERFLOW_BIT);
+}
+
 pub fn set_interrupt_disable(mut flags: &mut u8){
     set_flag(flags, INTERRUPT_DISABLE_BIT);
 }
