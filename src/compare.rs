@@ -75,6 +75,66 @@ pub fn comp_value_indirect_indexed(pc_reg : &mut u16, acc: u8, addr: u8, y_reg: 
 mod tests {
     #[test]
     pub fn test_compare(){
+        use super::*;
+        use crate::memory::RAM;
 
+        let mut test_memory  : RAM = RAM::new();
+        let mut val = 0;
+        let mut stack_ptr = 0;
+        let mut pc_reg : u16 = 0;
+        let mut status = 0;
+        let mut cycles = 0;
+
+        // init mem
+        for i in 0..2048 {
+            test_memory.write_mem_value(i, i as u8);
+        }
+
+        comp_value_immediate(&mut pc_reg, 128, 128, &mut status, &mut cycles);
+        assert_eq!(status, 3);
+        assert_eq!(pc_reg, 2);
+        assert_eq!(cycles, 2);
+
+        status = 0;
+        comp_value_zero_page(&mut pc_reg, 128, 128, &mut test_memory, &mut status, &mut cycles);
+        assert_eq!(status, 3);
+        assert_eq!(pc_reg, 4);
+        assert_eq!(cycles, 3);
+
+        status = 0;
+        comp_value_zero_page_x(&mut pc_reg, 128, 125, 3, &mut test_memory, &mut status, &mut cycles);
+        assert_eq!(status, 3);
+        assert_eq!(pc_reg, 6);
+        assert_eq!(cycles, 4);
+
+        status = 0;
+        comp_value_absolute(&mut pc_reg, 128, 384, &mut test_memory, &mut status, &mut cycles);
+        assert_eq!(status, 3);
+        assert_eq!(pc_reg, 9);
+        assert_eq!(cycles, 4);
+
+        status = 0;
+        comp_value_immediate(&mut pc_reg, 132, 128, &mut status, &mut cycles);
+        assert_eq!(status, 1);
+        assert_eq!(pc_reg, 11);
+        assert_eq!(cycles, 2);
+
+        status = 0;
+        comp_value_absolute_reg(&mut pc_reg, 128, 383, 1, &mut test_memory, &mut status, &mut cycles);
+        assert_eq!(status, 3);
+        assert_eq!(pc_reg, 14);
+        assert_eq!(cycles, 4);
+
+        status = 0;
+        comp_value_indexed_indirect(&mut pc_reg, 5, 2, 3, &mut test_memory, &mut status, &mut cycles);
+        assert_eq!(status, 3);
+        assert_eq!(pc_reg, 16);
+        assert_eq!(cycles, 6);
+
+        status = 0;
+        comp_value_indirect_indexed(&mut pc_reg, 10, 6, 3, &mut test_memory, &mut status, &mut cycles);
+        assert_eq!(status, 1);
+        assert_eq!(pc_reg, 18);
+        assert_eq!(cycles, 5);
     }
 }
