@@ -15,4 +15,4 @@ pub mod misc_instructions;
 pub mod jumps;
 pub mod increment_decrement;
 pub mod compare;
-
+pub mod or;
