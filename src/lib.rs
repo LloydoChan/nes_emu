@@ -17,3 +17,4 @@ pub mod increment_decrement;
 pub mod compare;
 pub mod or;
 pub mod sub;
+pub mod load_store;

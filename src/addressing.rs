@@ -26,7 +26,8 @@ fn match_on_op(in_val : u8, operand: u8, op : Operation, status_flag: &mut u8) -
         Operation::And => in_val & operand,
         Operation::Sub => {
                             let carry = *status_flag & CARRY_BIT;
-                            let result = in_val.wrapping_sub(operand - (1 - carry));
+                            let mut result = in_val.wrapping_sub(operand);
+                            result = result.wrapping_sub(1-carry);
                             result
                         },
         Operation::Eor => in_val ^ operand,
@@ -126,7 +127,6 @@ pub fn immediate(mut in_val : u8, operand: u8, status_flag: &mut u8, op : Operat
 
 pub fn zero_page(mut in_val : u8, operand: u8, memory: &RAM, status_flag: &mut u8, op : Operation) -> u8 {
     let mem_value = memory.read_mem_value(operand as u16);
-
     in_val = match_on_op(in_val, mem_value, op, status_flag);
     in_val as u8
 }

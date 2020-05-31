@@ -50,6 +50,7 @@ pub fn adc_indirect_indexed(operand : u16, y_val : u8, pc_reg : &mut u16, accumu
 mod tests {
     use super::*;
     use crate::memory;
+    use crate::flags;
 
     #[test]
     fn adc_tests() {
@@ -133,5 +134,30 @@ mod tests {
 
         assert_eq!(pc_reg, 22);
         assert_eq!(accumulator, 10);
+
+        //test overflow flag!
+        accumulator = 0b0111_1111;
+        let operand = 0b0111_1111;
+        adc_immediate(operand, &mut pc_reg, &mut accumulator,  &mut status, &mut cycles);
+
+        assert_eq!(status & flags::OVERFLOW_BIT, flags::OVERFLOW_BIT);
+        assert_eq!(status & flags::NEGATIVE_BIT, flags::NEGATIVE_BIT);
+
+        accumulator = 0b0111_1111;
+        let operand = 0b1000_0001;
+        adc_immediate(operand, &mut pc_reg, &mut accumulator,  &mut status, &mut cycles);
+        assert_eq!(status & flags::CARRY_BIT, flags::CARRY_BIT);
+
+        status = flags::CARRY_BIT;
+        accumulator = 0;
+        let operand = 0;
+        adc_immediate(operand, &mut pc_reg, &mut accumulator,  &mut status, &mut cycles);
+        assert_eq!(accumulator, 1);
+
+        accumulator = 0b1000_0000;
+        let operand = 0b1000_0000;
+        adc_immediate(operand, &mut pc_reg, &mut accumulator,  &mut status, &mut cycles);
+
+        assert_eq!(status & flags::OVERFLOW_BIT, flags::OVERFLOW_BIT);
     }
 }

@@ -48,9 +48,34 @@ pub fn sbc_indirect_indexed(operand : u16, y_val : u8, pc_reg : &mut u16, accumu
 mod tests{
     use super::*;
     use crate::memory;
+    use crate::flags;
 
     #[test]
-    pub fn test_sub(){
+    fn sub_tests() {
+        let operand = 12;
+        let mut pc_reg  = 0;
+        let mut accumulator = 12;
+        let mut status : u8 = 0;
+        let mut test_memory  : memory::RAM = memory::RAM::new();
 
+        let mut cycles = 0;
+
+        // init mem
+        for i in 0..2048 {
+            test_memory.write_mem_value(i, (i * 2) as u8);
+        }
+
+        sbc_immediate(2, &mut pc_reg, &mut accumulator,  &mut status, &mut cycles);
+
+        assert_eq!(pc_reg, 2);
+        assert_eq!(accumulator, 9);
+        assert_eq!(status, 0);
+
+        status = 1; 
+        accumulator = 12;
+        sbc_immediate(2, &mut pc_reg, &mut accumulator,  &mut status, &mut cycles);
+
+        assert_eq!(pc_reg, 4);
+        assert_eq!(accumulator, 10);
     }
 }
