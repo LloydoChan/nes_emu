@@ -40,7 +40,7 @@ pub fn adc_indexed_indirect(operand : u8, x_val : u8, pc_reg : &mut u16, accumul
     *cycles_until_next = 6;
 }
 
-pub fn adc_indirect_indexed(operand : u16, y_val : u8, pc_reg : &mut u16, accumulator: &mut u8, mut status_flags: &mut u8, memory : &RAM, cycles_until_next : &mut u8){
+pub fn adc_indirect_indexed(operand : u8, y_val : u8, pc_reg : &mut u16, accumulator: &mut u8, mut status_flags: &mut u8, memory : &RAM, cycles_until_next : &mut u8){
     *accumulator = addressing::indirect_indexed(*accumulator, y_val, operand, memory, &mut status_flags, Operation::Add);
     *pc_reg += 2;
     *cycles_until_next = 5;

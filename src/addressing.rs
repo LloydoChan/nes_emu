@@ -126,36 +126,6 @@ pub fn immediate(mut in_val : u8, operand: u8, status_flag: &mut u8, op : Operat
     in_val as u8
 }
 
-// not just immediate load but also zero page and zero page x, y
-pub fn immediate_load(operand: u8, offset: u8, memory: &RAM, status_flag: &mut u8) -> u8 {
-    let addr = operand.wrapping_add(offset);
-    let ret_val = memory.read_mem_value(addr as u16);
-    set_flags_or_and(ret_val, status_flag);
-    ret_val
-}
-
-pub fn absolute_load(operand: u16, offset: u16, memory: &RAM, status_flag: &mut u8) -> u8 {
-    let addr = operand + offset;
-    let ret_val = memory.read_mem_value(addr as u16);
-    set_flags_or_and(ret_val, status_flag);
-    ret_val
-}
-
-pub fn indirect_x_load(operand: u8, x_val: u8, memory: &RAM, status_flag: &mut u8) -> u8 {
-    let addr = operand.wrapping_add(x_val);
-    let table_addr = memory.read_mem_address(addr as u16);
-    let mem_value = memory.read_mem_value(table_addr); 
-    set_flags_or_and(mem_value, status_flag);
-    mem_value
-}
-
-pub fn indirect_y_load(operand: u8, y_val: u8, memory: &RAM, status_flag: &mut u8) -> u8 {
-    let table_addr = memory.read_mem_address(operand as u16) + y_val as u16; 
-    let mem_value = memory.read_mem_value(table_addr); 
-    set_flags_or_and(mem_value, status_flag);
-    mem_value
-}
-
 pub fn zero_page(mut in_val : u8, operand: u8, memory: &RAM, status_flag: &mut u8, op : Operation) -> u8 {
     let mem_value = memory.read_mem_value(operand as u16);
     in_val = match_on_op(in_val, mem_value, op, status_flag);
@@ -196,7 +166,7 @@ pub fn indexed_indirect(mut in_val : u8, x_val : u8, operand: u8, memory: &RAM, 
     in_val as u8    
 }
 
-pub fn indirect_indexed(mut in_val : u8, y_val : u8, operand: u16, memory: &RAM, status_flag: &mut u8, op : Operation) -> u8 {
+pub fn indirect_indexed(mut in_val : u8, y_val : u8, operand: u8, memory: &RAM, status_flag: &mut u8, op : Operation) -> u8 {
     let table_addr = memory.read_mem_address(operand as u16);
     let addr : u16 = table_addr + y_val as u16;
     let mem_value = memory.read_mem_value(addr as u16);
