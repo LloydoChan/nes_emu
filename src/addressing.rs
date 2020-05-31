@@ -11,7 +11,9 @@ pub enum Operation{
     Sub,
     And,
     Eor,
-    Ior
+    Ior,
+    Load,
+    Store
 }
 
 
@@ -120,9 +122,38 @@ fn set_flags_or_and(in_val: u8, status_flag: &mut u8){
 }
 
 pub fn immediate(mut in_val : u8, operand: u8, status_flag: &mut u8, op : Operation) -> u8 {
-
     in_val = match_on_op(in_val, operand, op, status_flag);
     in_val as u8
+}
+
+// not just immediate load but also zero page and zero page x, y
+pub fn immediate_load(operand: u8, offset: u8, memory: &RAM, status_flag: &mut u8) -> u8 {
+    let addr = operand.wrapping_add(offset);
+    let ret_val = memory.read_mem_value(addr as u16);
+    set_flags_or_and(ret_val, status_flag);
+    ret_val
+}
+
+pub fn absolute_load(operand: u16, offset: u16, memory: &RAM, status_flag: &mut u8) -> u8 {
+    let addr = operand + offset;
+    let ret_val = memory.read_mem_value(addr as u16);
+    set_flags_or_and(ret_val, status_flag);
+    ret_val
+}
+
+pub fn indirect_x_load(operand: u8, x_val: u8, memory: &RAM, status_flag: &mut u8) -> u8 {
+    let addr = operand.wrapping_add(x_val);
+    let table_addr = memory.read_mem_address(addr as u16);
+    let mem_value = memory.read_mem_value(table_addr); 
+    set_flags_or_and(mem_value, status_flag);
+    mem_value
+}
+
+pub fn indirect_y_load(operand: u8, y_val: u8, memory: &RAM, status_flag: &mut u8) -> u8 {
+    let table_addr = memory.read_mem_address(operand as u16) + y_val as u16; 
+    let mem_value = memory.read_mem_value(table_addr); 
+    set_flags_or_and(mem_value, status_flag);
+    mem_value
 }
 
 pub fn zero_page(mut in_val : u8, operand: u8, memory: &RAM, status_flag: &mut u8, op : Operation) -> u8 {
@@ -138,6 +169,7 @@ pub fn zero_page_x(mut in_val : u8, x_val : u8, operand: u8, memory: &RAM, statu
     in_val = match_on_op(in_val, mem_value, op, status_flag);
     in_val as u8    
 }
+
 
 pub fn absolute(mut in_val : u8, operand: u16, memory: &RAM, status_flag: &mut u8, op : Operation) -> u8 {
     // little endian so swap around the operand bytes
