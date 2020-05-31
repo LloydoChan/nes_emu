@@ -10,53 +10,53 @@ fn flag_bit_check(flag_val : u8, flag_bit : u8, set: u8) -> bool{
     flag_val & flag_bit != set
 }
 
-fn branch_on_flag(flag_val : u8, pc_reg : &mut u16, relative_addr : i16, flag_bit: u8, set: u8){
+fn branch_on_flag(flag_val : u8, pc_reg : &mut u16, relative_addr : i8, flag_bit: u8, set: u8){
 
     if flag_bit_check(flag_val, flag_bit, set) {
         let mut temp_reg = *pc_reg as i16;
-        temp_reg += relative_addr;
+        temp_reg += relative_addr as i16;
         *pc_reg = temp_reg as u16;
     }
 
     *pc_reg += 2;
 }
 
-pub fn branch_if_carry_set(flag_val : u8, mut pc_reg : &mut u16, relative_addr : i16, cycles : &mut u8){
+pub fn branch_if_carry_set(flag_val : u8, mut pc_reg : &mut u16, relative_addr : i8, cycles : &mut u8){
     branch_on_flag(flag_val, &mut pc_reg, relative_addr, flags::CARRY_BIT, 0);
     *cycles = 2;
 }
 
-pub fn branch_if_carry_clear(flag_val : u8, mut pc_reg : &mut u16, relative_addr : i16, cycles : &mut u8){
+pub fn branch_if_carry_clear(flag_val : u8, mut pc_reg : &mut u16, relative_addr : i8, cycles : &mut u8){
     branch_on_flag(flag_val, &mut pc_reg, relative_addr, flags::CARRY_BIT, 1);
     *cycles = 2;
 }
 
-pub fn branch_if_equal(flag_val : u8, mut pc_reg : &mut u16, relative_addr : i16, cycles : &mut u8){
+pub fn branch_if_equal(flag_val : u8, mut pc_reg : &mut u16, relative_addr : i8, cycles : &mut u8){
     branch_on_flag(flag_val, &mut pc_reg, relative_addr, flags::ZERO_BIT, 0);
     *cycles = 2;
 }
 
-pub fn branch_if_not_equal(flag_val : u8, mut pc_reg : &mut u16, relative_addr : i16, cycles : &mut u8){
+pub fn branch_if_not_equal(flag_val : u8, mut pc_reg : &mut u16, relative_addr : i8, cycles : &mut u8){
     branch_on_flag(flag_val, &mut pc_reg, relative_addr, flags::ZERO_BIT, 1);
     *cycles = 2;
 }
 
-pub fn branch_if_minus(flag_val : u8, mut pc_reg : &mut u16, relative_addr : i16, cycles : &mut u8){
+pub fn branch_if_minus(flag_val : u8, mut pc_reg : &mut u16, relative_addr : i8, cycles : &mut u8){
     branch_on_flag(flag_val, &mut pc_reg, relative_addr, flags::NEGATIVE_BIT, 0);
     *cycles = 2;
 }
 
-pub fn branch_if_positive(flag_val : u8, mut pc_reg : &mut u16, relative_addr : i16, cycles : &mut u8){
+pub fn branch_if_positive(flag_val : u8, mut pc_reg : &mut u16, relative_addr : i8, cycles : &mut u8){
     branch_on_flag(flag_val, &mut pc_reg, relative_addr, flags::NEGATIVE_BIT, 1);
     *cycles = 2;
 }
 
-pub fn branch_if_overflow_set(flag_val : u8, mut pc_reg : &mut u16, relative_addr : i16, cycles : &mut u8){
+pub fn branch_if_overflow_set(flag_val : u8, mut pc_reg : &mut u16, relative_addr : i8, cycles : &mut u8){
     branch_on_flag(flag_val, &mut pc_reg, relative_addr, flags::OVERFLOW_BIT, 0);
     *cycles = 2;
 }
 
-pub fn branch_if_overflow_clear(flag_val : u8, mut pc_reg : &mut u16, relative_addr : i16, cycles : &mut u8){
+pub fn branch_if_overflow_clear(flag_val : u8, mut pc_reg : &mut u16, relative_addr : i8, cycles : &mut u8){
     branch_on_flag(flag_val, &mut pc_reg, relative_addr, flags::OVERFLOW_BIT, 1);
     *cycles = 2;
 }
