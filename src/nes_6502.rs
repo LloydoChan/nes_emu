@@ -12,6 +12,11 @@ use crate::compare;
 use crate::jumps;
 use crate::increment_decrement;
 use crate::load_store;
+use crate::lsr;
+use crate::or;
+use crate::rol;
+use crate::ror;
+use crate::sub;
 
 #[derive(Debug)]
 struct Nes6502{
@@ -538,172 +543,223 @@ impl Nes6502 {
             // -------------------------
             // logical shift right start
             0x4A => {
-
+                lsr::lsr_accumulator(&mut self.pc_counter, &mut self.accumulator, &mut self.status_flags, &mut self.cycles_until_next)
             },
             0x46 => {
-
+                let zero_page = ram.read_mem_value(self.pc_counter + 1);
+                lsr::lsr_zero_page(&mut self.pc_counter, zero_page, ram, &mut self.status_flags, &mut self.cycles_until_next);
             },
             0x56 => {
-
+                let zero_page = ram.read_mem_value(self.pc_counter + 1);
+                lsr::lsr_zero_page_x(&mut self.pc_counter, self.x, zero_page, ram, &mut self.status_flags, &mut self.cycles_until_next);
             },
             0x4E => {
-
+                let absolute = ram.read_mem_address(self.pc_counter + 1);
+                lsr::lsr_absolute(&mut self.pc_counter, absolute, ram, &mut self.status_flags, &mut self.cycles_until_next);
             },
             0x5E => {
-
+                let absolute = ram.read_mem_address(self.pc_counter + 1);
+                lsr::lsr_absolute_x(&mut self.pc_counter, self.x, absolute, ram, &mut self.status_flags, &mut self.cycles_until_next);
             },
             // logical shift right end
             // -------------------------
             // exclusive or instructions start
             0x49 => {
-
+                let immediate = ram.read_mem_value(self.pc_counter + 1);
+                or::xor_immediate(immediate, &mut self.pc_counter, &mut self.accumulator, &mut self.status_flags, &mut self.cycles_until_next);
             },
             0x45 => {
-
+                let zero_page = ram.read_mem_value(self.pc_counter + 1);
+                or::xor_zero_page(zero_page, &mut self.pc_counter, &mut self.accumulator, &mut self.status_flags, ram, &mut self.cycles_until_next);
             },
             0x55 => {
-
+                let zero_page = ram.read_mem_value(self.pc_counter + 1);
+                or::xor_zero_page_x(zero_page, self.x, &mut self.pc_counter, &mut self.accumulator, &mut self.status_flags, ram, &mut self.cycles_until_next);
             },
             0x4D => {
-
+                let absolute_addr = ram.read_mem_address(self.pc_counter + 1);
+                or::xor_absolute(absolute_addr, &mut self.pc_counter, &mut self.accumulator, &mut self.status_flags, ram, &mut self.cycles_until_next);
             },
             0x5D => {
-
+                let absolute_addr = ram.read_mem_address(self.pc_counter + 1);
+                or::xor_absolute_reg(absolute_addr, self.x, &mut self.pc_counter, &mut self.accumulator, &mut self.status_flags, ram, &mut self.cycles_until_next);
             },
             0x59 => {
-
+                let absolute_addr = ram.read_mem_address(self.pc_counter + 1);
+                or::xor_absolute_reg(absolute_addr, self.y, &mut self.pc_counter, &mut self.accumulator, &mut self.status_flags, ram, &mut self.cycles_until_next);
             },
             0x41 => {
-
+                let zero_page = ram.read_mem_value(self.pc_counter + 1);
+                or::xor_indexed_indirect(zero_page, self.x, &mut self.pc_counter, &mut self.accumulator, &mut self.status_flags, ram, &mut self.cycles_until_next);
             },
             0x51 => {
-
+                let zero_page = ram.read_mem_value(self.pc_counter + 1);
+                or::xor_indirect_indexed(zero_page, self.y, &mut self.pc_counter, &mut self.accumulator, &mut self.status_flags, ram, &mut self.cycles_until_next);
             },
             // exclusive or instructions end
             // -------------------------
             // inclusive or instruction start
             0x09 => {
-
+                let immediate = ram.read_mem_value(self.pc_counter + 1);
+                or::ior_immediate(immediate, &mut self.pc_counter, &mut self.accumulator, &mut self.status_flags, &mut self.cycles_until_next);
             },
             0x05 => {
-
+                let zero_page = ram.read_mem_value(self.pc_counter + 1);
+                or::ior_zero_page(zero_page, &mut self.pc_counter, &mut self.accumulator, &mut self.status_flags, ram, &mut self.cycles_until_next);
             },
             0x15 => {
-
+                let zero_page = ram.read_mem_value(self.pc_counter + 1);
+                or::ior_zero_page_x(zero_page, self.x, &mut self.pc_counter, &mut self.accumulator, &mut self.status_flags, ram, &mut self.cycles_until_next);
             },
             0x0D => {
-
+                let absolute_addr = ram.read_mem_address(self.pc_counter + 1);
+                or::ior_absolute(absolute_addr, &mut self.pc_counter, &mut self.accumulator, &mut self.status_flags, ram, &mut self.cycles_until_next);
             },
             0x1D => {
-
+                let absolute_addr = ram.read_mem_address(self.pc_counter + 1);
+                or::ior_absolute_reg(absolute_addr, self.x, &mut self.pc_counter, &mut self.accumulator, &mut self.status_flags, ram, &mut self.cycles_until_next);
             },
             0x19 => {
-
+                let absolute_addr = ram.read_mem_address(self.pc_counter + 1);
+                or::ior_absolute_reg(absolute_addr, self.y, &mut self.pc_counter, &mut self.accumulator, &mut self.status_flags, ram, &mut self.cycles_until_next);
             },
             0x01 => {
-
+                let zero_page = ram.read_mem_value(self.pc_counter + 1);
+                or::ior_indexed_indirect(zero_page, self.x, &mut self.pc_counter, &mut self.accumulator, &mut self.status_flags, ram, &mut self.cycles_until_next);
             },
             0x11 => {
-
+                let zero_page = ram.read_mem_value(self.pc_counter + 1);
+                or::ior_indirect_indexed(zero_page, self.y, &mut self.pc_counter, &mut self.accumulator, &mut self.status_flags, ram, &mut self.cycles_until_next);
             },
             // inclusive or instruction end
             // -------------------------
             // push and pull instructions start
             0x48 => {
-
+                misc_instructions::push_acc_on_stack(&mut self.pc_counter, self.accumulator, &mut self.stack_pointer, ram, &mut self.cycles_until_next);
             },
             0x08 => {
-
+                misc_instructions::push_acc_on_stack(&mut self.pc_counter, self.status_flags, &mut self.stack_pointer, ram, &mut self.cycles_until_next);
             },
             0x68 => {
-
+                misc_instructions::pull_acc_from_stack(&mut self.pc_counter, &mut self.accumulator, &mut self.status_flags, &mut self.stack_pointer, ram, &mut self.cycles_until_next);
             },
             0x28 => {
-
+                misc_instructions::pull_status_from_stack(&mut self.pc_counter, &mut self.status_flags, &mut self.stack_pointer, ram, &mut self.cycles_until_next);
             },
             // push and pull instructions end
             // -------------------------
             // rotate instructions start
             0x2A => {
-
+                rol::rol_accumulator(&mut self.pc_counter, &mut self.accumulator, &mut self.status_flags, &mut self.cycles_until_next);
             },
             0x26 => {
-
+                let zero_page = ram.read_mem_value(self.pc_counter + 1);
+                rol::rol_zero_page(&mut self.pc_counter, zero_page, &mut self.status_flags, ram, &mut self.cycles_until_next);
             },
             0x36 => {
-
+                let zero_page = ram.read_mem_value(self.pc_counter + 1);
+                rol::rol_zero_page_x(&mut self.pc_counter, self.x, zero_page, &mut self.status_flags, ram, &mut self.cycles_until_next);
             },
             0x2E => {
-
+                let absolute = ram.read_mem_address(self.pc_counter + 1);
+                rol::rol_absolute(&mut self.pc_counter, absolute, &mut self.status_flags, ram, &mut self.cycles_until_next);
             },
             0x3E => {
-
+                let absolute = ram.read_mem_address(self.pc_counter + 1);
+                rol::rol_absolute_x(&mut self.pc_counter, self.x, absolute, &mut self.status_flags, ram, &mut self.cycles_until_next);
             },
             0x6A => {
-
+                ror::ror_accumulator(&mut self.pc_counter, &mut self.accumulator, &mut self.status_flags, &mut self.cycles_until_next);
             },
             0x66 => {
-
+                let zero_page = ram.read_mem_value(self.pc_counter + 1);
+                ror::ror_zero_page(&mut self.pc_counter, zero_page, &mut self.status_flags, ram, &mut self.cycles_until_next);
             },
             0x76 => {
-
+                let zero_page = ram.read_mem_value(self.pc_counter + 1);
+                ror::ror_zero_page_x(&mut self.pc_counter, self.x, zero_page, &mut self.status_flags, ram, &mut self.cycles_until_next);
             },
             0x6E => {
-
+                let absolute = ram.read_mem_address(self.pc_counter + 1);
+                ror::ror_absolute(&mut self.pc_counter, absolute, &mut self.status_flags, ram, &mut self.cycles_until_next);
             },
             0x7E => {
-
+                let absolute = ram.read_mem_address(self.pc_counter + 1);
+                ror::ror_absolute_x(&mut self.pc_counter, self.x, absolute, &mut self.status_flags, ram, &mut self.cycles_until_next);
             },
             // rotate instructions end
             // -------------------------
             // transfer instructions start
             0xAA => {
-
+                // transfer acc to x
+                misc_instructions::transfer_source_to_dest(&mut self.pc_counter, self.accumulator, &mut self.x, &mut self.status_flags, &mut self.cycles_until_next);
             },
             0xA8 => {
-
+                // transfer acc to y
+                misc_instructions::transfer_source_to_dest(&mut self.pc_counter, self.accumulator, &mut self.y, &mut self.status_flags, &mut self.cycles_until_next);
             },
             0x8A => {
-
+                // transfer x to acc
+                misc_instructions::transfer_source_to_dest(&mut self.pc_counter, self.x, &mut self.accumulator, &mut self.status_flags, &mut self.cycles_until_next);
+            },
+            0xBA => {
+                // transfer x to stack pointer
+                misc_instructions::transfer_x_to_stack_pointer(&mut self.pc_counter, self.x, &mut self.status_flags, &mut self.cycles_until_next);
             },
             0x9A => {
-
+                 // transfer stack to x
+                 misc_instructions::transfer_source_to_dest(&mut self.pc_counter, self.stack_pointer, &mut self.x, &mut self.status_flags, &mut self.cycles_until_next);
             },
             0x98 => {
-
+                // transfer y to acc
+                misc_instructions::transfer_source_to_dest(&mut self.pc_counter, self.y, &mut self.accumulator, &mut self.status_flags, &mut self.cycles_until_next);
             }
             // transfer instructions end
             //-------------------------
             //subc instructions start
             0xE9 => {
-
+                let imm_value = ram.read_mem_value(self.pc_counter + 1);
+                sub::sbc_immediate(imm_value, &mut self.pc_counter, &mut self.accumulator, &mut self.status_flags,  &mut self.cycles_until_next);
             },
             0xE5 => {
-
+                // zero page
+                let zero_page_addr = ram.read_mem_value(self.pc_counter + 1);
+                sub::sbc_zero_page(zero_page_addr,  &mut self.pc_counter, &mut self.accumulator, &mut self.status_flags, ram, &mut self.cycles_until_next);
             },
             0xF5 => {
-
+                // zero page x
+                let zero_page_addr = ram.read_mem_value(self.pc_counter + 1);
+                sub::sbc_zero_page_x(zero_page_addr, self.x, &mut self.pc_counter, &mut self.accumulator, &mut self.status_flags, ram, &mut self.cycles_until_next);
             },
             0xED => {
-
+                // absolute
+                let absolute_addr = ram.read_mem_address(self.pc_counter + 1);
+                sub::sbc_absolute(absolute_addr,  &mut self.pc_counter, &mut self.accumulator, &mut self.status_flags, ram, &mut self.cycles_until_next);
             },
             0xFD => {
-
+                // absolute
+                let absolute_addr = ram.read_mem_address(self.pc_counter + 1);
+                sub::sbc_absolute_reg(absolute_addr, self.x,  &mut self.pc_counter, &mut self.accumulator, &mut self.status_flags, ram, &mut self.cycles_until_next);
             },
             0xF9 => {
-
+                // absolute
+                let absolute_addr = ram.read_mem_address(self.pc_counter + 1);
+                sub::sbc_absolute_reg(absolute_addr, self.y, &mut self.pc_counter, &mut self.accumulator, &mut self.status_flags, ram, &mut self.cycles_until_next);
             },
             0xE1 => {
-
+                // indirect x
+               let addr = ram.read_mem_value(self.pc_counter + 1);
+               sub::sbc_indexed_indirect(addr, self.x,  &mut self.pc_counter, &mut self.accumulator, &mut self.status_flags, ram, &mut self.cycles_until_next);
             },
             0xF1 => {
-
+                let addr = ram.read_mem_value(self.pc_counter + 1);
+               sub::sbc_indirect_indexed(addr, self.y,  &mut self.pc_counter, &mut self.accumulator, &mut self.status_flags, ram, &mut self.cycles_until_next);
             }
             //subc instructions end
             //------------------------
             //nop
             0xEA => {
-
+                misc_instructions::NOP(&mut self.pc_counter, &mut self.cycles_until_next);
             },
             _=> panic!(),
         }

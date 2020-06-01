@@ -67,10 +67,10 @@ pub fn break_force_interrupt(pc_reg: &mut u16, status: &mut u8, stack_ptr: &mut 
     *status |= BREAK_CMD_BIT;
 }
 
-pub fn push_acc_status_on_stack(pc_reg: &mut u16, accumulator : u8, stack_ptr: &mut u8, test_ram: &mut RAM, cycles : & mut u8){
+pub fn push_acc_on_stack(pc_reg: &mut u16, accumulator_or_status : u8, stack_ptr: &mut u8, test_ram: &mut RAM, cycles : & mut u8){
     *pc_reg += 1;
     *cycles = 3;
-    test_ram.push_value_on_stack(stack_ptr, accumulator);
+    test_ram.push_value_on_stack(stack_ptr, accumulator_or_status);
 }
 
 pub fn pull_acc_from_stack(pc_reg: &mut u16, accumulator : &mut u8, status: &mut u8, stack_ptr: &mut u8, test_ram: &mut RAM, cycles : & mut u8){
