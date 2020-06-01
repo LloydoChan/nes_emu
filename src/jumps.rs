@@ -26,6 +26,12 @@ pub fn return_from_subroutine(pc_reg : &mut u16, stack_ptr : &mut u8, ram: &mut 
     *cycles = 6;
 }
 
+pub fn return_from_interrupt(pc_reg : &mut u16, stack_ptr : &mut u8, status_flags: &mut u8, ram: &mut RAM, cycles : &mut u8){
+    *status_flags = ram.pop_value_off_stack(stack_ptr);
+    *pc_reg = ram.pop_address_off_stack(stack_ptr);
+    *cycles = 6;
+}
+
 #[cfg(test)]
 mod tests{
     #[test]

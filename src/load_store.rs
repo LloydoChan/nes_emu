@@ -42,8 +42,8 @@ pub fn store_zero_page(pc_reg: &mut u16, to_store: u8, operand: u8, offset: u8, 
 }
 
 
-pub fn absolute_load(pc_reg: &mut u16, operand: u16, offset: u16, memory: &RAM, status_flag: &mut u8, cycles: &mut u8) -> u8 {
-    let addr = operand + offset;
+pub fn absolute_load(pc_reg: &mut u16, operand: u16, offset: u8, memory: &RAM, status_flag: &mut u8, cycles: &mut u8) -> u8 {
+    let addr = operand + offset as u16;
     let ret_val = memory.read_mem_value(addr as u16);
     set_flags(ret_val, status_flag);
 
@@ -96,8 +96,8 @@ pub fn indirect_y_load(pc_reg: &mut u16, operand: u8, y_val: u8, memory: &RAM, s
     mem_value
 }
 
-pub fn store_indirect_y(pc_reg: &mut u16, to_store: u8, operand: u16, offset: u8, memory: &mut RAM, cycles: &mut u8){
-    let write_addr = memory.read_mem_address(operand) + offset as u16;
+pub fn store_indirect_y(pc_reg: &mut u16, to_store: u8, operand: u8, offset: u8, memory: &mut RAM, cycles: &mut u8){
+    let write_addr = memory.read_mem_address(operand as u16) + offset as u16;
     memory.write_mem_value(write_addr, to_store);
     *pc_reg += 2;
     *cycles = 6;
