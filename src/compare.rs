@@ -1,6 +1,6 @@
 //compare.rs - all compare instructions
 
-use crate::memory::RAM;
+use crate::memory::{RAM, *};
 use crate::flags::*;
 
 fn set_flags(status_flags : &mut u8, reg_acc : u8, comp_value: u8){
@@ -51,7 +51,7 @@ pub fn comp_value_zero_page_x(pc_reg : &mut u16, acc: u8, page_addr : u8, x_val 
 
 pub fn comp_value_absolute(pc_reg : &mut u16, reg_acc: u8, abs_addr : u16, mem : &mut RAM, status_flags: &mut u8, cycles : &mut u8){
 
-    let mem_val = mem.read_mem_value(abs_addr);
+    let mem_val = mem.read_mem_value(swap_bytes(abs_addr));
     set_flags(status_flags, reg_acc, mem_val);
     *pc_reg += 3;
     *cycles = 4;
@@ -59,7 +59,7 @@ pub fn comp_value_absolute(pc_reg : &mut u16, reg_acc: u8, abs_addr : u16, mem :
 
 pub fn comp_value_absolute_reg(pc_reg : &mut u16, acc: u8, abs_addr : u16, reg: u8, mem : &mut RAM, status_flags: &mut u8, cycles : &mut u8){
 
-    let mem_val = mem.read_mem_value(abs_addr + reg as u16);
+    let mem_val = mem.read_mem_value(swap_bytes(abs_addr) + reg as u16);
     set_flags(status_flags, acc, mem_val);
     *pc_reg += 3;
     *cycles = 4;

@@ -89,8 +89,8 @@ pub fn store_indirect_x(pc_reg: &mut u16, to_store: u8, operand: u8, offset: u8,
 }
 
 pub fn indirect_y_load(pc_reg: &mut u16, operand: u8, y_val: u8, memory: &RAM, status_flag: &mut u8, cycles: &mut u8) -> u8 {
-    let table_addr = memory.read_mem_address(operand as u16) + y_val as u16; 
-    let mem_value = memory.read_mem_value(table_addr); 
+    let table_addr = memory.read_mem_address(operand as u16);  
+    let mem_value = memory.read_mem_value(table_addr.wrapping_add(y_val as u16)); 
     set_flags(mem_value, status_flag);
 
     *pc_reg += 2;

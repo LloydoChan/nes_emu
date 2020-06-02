@@ -8,7 +8,7 @@ pub fn jump_absolute(pc_reg : &mut u16, absolute_addr: u16, cycles : &mut u8){
 }
 
 pub fn jump_indirect(pc_reg : &mut u16, indirect_addr: u16, ram: &RAM, cycles : &mut u8){
-    let addr = ram.read_mem_address(indirect_addr);
+    let addr = ram.read_mem_address(swap_bytes(indirect_addr));
     *pc_reg = swap_bytes(addr);
     *cycles = 5;
 }
@@ -28,6 +28,8 @@ pub fn return_from_subroutine(pc_reg : &mut u16, stack_ptr : &mut u8, ram: &mut 
 
 pub fn return_from_interrupt(pc_reg : &mut u16, stack_ptr : &mut u8, status_flags: &mut u8, ram: &mut RAM, cycles : &mut u8){
     *status_flags = ram.pop_value_off_stack(stack_ptr);
+    // set bit 5
+    *status_flags |= 0b0010_0000;
     *pc_reg = ram.pop_address_off_stack(stack_ptr);
     *cycles = 6;
 }

@@ -9,16 +9,22 @@ pub fn asl_accumulator(pc_reg : &mut u16, accumulator: &mut u8, status_flags: &m
     
     if (*accumulator & 0x80) != 0 {
         set_carry(status_flags);
+    } else {
+        clear_carry(status_flags);
     }
 
     *accumulator <<= 1;
    
     if (*accumulator & 0x80) != 0 {
         set_negative(status_flags);
+    } else {
+        clear_negative(status_flags);
     }
 
     if *accumulator == 0 {
         set_zero(status_flags);
+    } else {
+        clear_zero(status_flags);
     }
 
     *pc_reg += 1;
@@ -31,6 +37,8 @@ pub fn asl_accumulator(pc_reg : &mut u16, accumulator: &mut u8, status_flags: &m
 
     if (value & 0x80) != 0 {
         set_carry(status_flags);
+    } else {
+        clear_carry(status_flags);
     }
 
     value <<= 1;
@@ -38,6 +46,14 @@ pub fn asl_accumulator(pc_reg : &mut u16, accumulator: &mut u8, status_flags: &m
 
     if (value & 0x80) != 0 {
         set_negative(status_flags);
+    } else {
+        clear_negative(status_flags);
+    }
+
+    if value == 0 {
+        set_zero(status_flags);
+    } else {
+        clear_zero(status_flags);
     }
 
     *pc_reg += 2;
@@ -50,6 +66,8 @@ pub fn asl_accumulator(pc_reg : &mut u16, accumulator: &mut u8, status_flags: &m
 
     if (value & 0x80) != 0 {
         set_carry(status_flags);
+    } else {
+        clear_carry(status_flags);
     }
 
     value <<= 1;
@@ -57,6 +75,14 @@ pub fn asl_accumulator(pc_reg : &mut u16, accumulator: &mut u8, status_flags: &m
 
     if (value & 0x80) != 0 {
         set_negative(status_flags);
+    } else {
+        clear_negative(status_flags);
+    }
+
+    if value == 0 {
+        set_zero(status_flags);
+    } else {
+        clear_zero(status_flags);
     }
 
     *pc_reg += 2;
@@ -68,6 +94,8 @@ pub fn asl_accumulator(pc_reg : &mut u16, accumulator: &mut u8, status_flags: &m
 
     if (value & 0x80) != 0 {
         set_carry(status_flags);
+    } else {
+        clear_carry(status_flags);
     }
 
     value <<= 1;
@@ -76,6 +104,14 @@ pub fn asl_accumulator(pc_reg : &mut u16, accumulator: &mut u8, status_flags: &m
 
     if (value & 0x80) != 0 {
         set_negative(status_flags);
+    } else {
+        clear_negative(status_flags);
+    }
+
+    if value == 0 {
+        set_zero(status_flags);
+    } else {
+        clear_zero(status_flags);
     }
 
     *pc_reg += 3;
@@ -87,6 +123,8 @@ pub fn asl_accumulator(pc_reg : &mut u16, accumulator: &mut u8, status_flags: &m
 
     if (value & 0x80) != 0 {
         set_carry(status_flags);
+    } else {
+        clear_carry(status_flags);
     }
 
     value <<= 1;
@@ -95,6 +133,14 @@ pub fn asl_accumulator(pc_reg : &mut u16, accumulator: &mut u8, status_flags: &m
 
     if (value & 0x80) != 0 {
         set_negative(status_flags);
+    } else {
+        clear_negative(status_flags);
+    }
+
+    if value == 0 {
+        set_zero(status_flags);
+    } else {
+        clear_zero(status_flags);
     }
 
     *pc_reg += 3;

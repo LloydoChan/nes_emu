@@ -65,9 +65,9 @@ impl RAM {
         }
 
         let addr = STACK_START + *stack_ptr as usize;
-        self.ram[addr] = push_address  as u8;
-        self.ram[addr + 1] = (push_address >> 8) as u8; 
-        //println!("{:#x}, {:#x}, {:#x}", push_address, self.ram[addr], self.ram[addr + 1] );
+        self.ram[addr - 1] = push_address  as u8;
+        self.ram[addr] = (push_address >> 8) as u8; 
+        //println!("push addr on stack {:#x}, {:#x}, {:#x}", push_address, self.ram[addr], self.ram[addr - 1] );
         *stack_ptr -= 2;
     }
 
@@ -88,9 +88,9 @@ impl RAM {
 
         *stack_ptr += 2;
         let addr = STACK_START + *stack_ptr as usize;
-        let pop_addr = (self.ram[addr + 1] as u16) << 8 | 
-                       self.ram[addr] as u16; 
-        
+        let pop_addr = (self.ram[addr] as u16) << 8 | 
+                       self.ram[addr-1] as u16; 
+        //println!("pop addr off stack {:#x}, {:#x}, {:#x}", pop_addr, self.ram[addr - 1], self.ram[addr] );
         pop_addr
     }
 

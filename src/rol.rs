@@ -18,7 +18,15 @@ pub fn rol_accumulator(pc_reg : &mut u16, accumulator: &mut u8, status_flags: &m
 
     if (*accumulator & 0x80) != 0 {
         *status_flags |= NEGATIVE_BIT;
-    } 
+    } else {
+        *status_flags &= !NEGATIVE_BIT;
+    }
+
+    if *accumulator == 0 {
+        *status_flags |= ZERO_BIT;
+    } else {
+        *status_flags &= !ZERO_BIT;
+    }
 
     *cycles_until_next = 2;
     *pc_reg += 1;
@@ -36,6 +44,12 @@ pub fn rol_zero_page(pc_reg : &mut u16, operand: u8, status_flags: &mut u8, memo
     value |= current_carry;
 
     memory.write_mem_value(operand as u16, value);
+
+    if (value & 0x80) != 0 {
+        *status_flags |= NEGATIVE_BIT;
+    } else {
+        *status_flags &= !NEGATIVE_BIT;
+    }
 
     *cycles_until_next = 5;
     *pc_reg += 2;
@@ -59,7 +73,15 @@ pub fn rol_zero_page_x(pc_reg : &mut u16, x_val : u8, operand: u8, status_flags:
     
     if (value & 0x80) != 0 {
         *status_flags |= NEGATIVE_BIT;
-    } 
+    } else {
+        *status_flags &= !NEGATIVE_BIT;
+    }
+
+    // if value == 0 {
+    //     *status_flags |= ZERO_BIT;
+    // } else {
+    //     *status_flags &= !ZERO_BIT;
+    // }
 
     *cycles_until_next = 6;
     *pc_reg += 2;
@@ -82,7 +104,15 @@ pub fn rol_absolute(pc_reg : &mut u16, operand: u16, status_flags: &mut u8, memo
       
     if (value & 0x80) != 0 {
         *status_flags |= NEGATIVE_BIT;
+    } else {
+        *status_flags &= !NEGATIVE_BIT;
     } 
+
+    // if value == 0 {
+    //     *status_flags |= ZERO_BIT;
+    // } else {
+    //     *status_flags &= !ZERO_BIT;
+    // }
 
     *cycles_until_next = 6;
     *pc_reg += 3;
@@ -106,7 +136,15 @@ pub fn rol_absolute_x(pc_reg : &mut u16, x_val : u8, operand: u16, status_flags:
 
     if (value & 0x80) != 0 {
         *status_flags |= NEGATIVE_BIT;
-    } 
+    } else {
+        *status_flags &= !NEGATIVE_BIT;
+    }
+
+    // if value == 0 {
+    //     *status_flags |= ZERO_BIT;
+    // } else {
+    //     *status_flags &= !ZERO_BIT;
+    // }
 
 
     *cycles_until_next = 7;

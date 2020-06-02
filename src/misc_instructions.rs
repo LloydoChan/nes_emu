@@ -30,7 +30,7 @@ pub fn bittest_zero_page(pc_reg : &mut u16, accumulator : u8, operand: u8,  mem 
 }
 
 pub fn bittest_absolute(pc_reg : &mut u16, accumulator : u8, operand: u16,  mem : &mut RAM, status_flags : &mut u8, cycles : &mut u8){
-    let value = mem.read_mem_value(operand);
+    let value = mem.read_mem_value(swap_bytes(operand));
     let result = accumulator & value;
 
     if result == 0 {

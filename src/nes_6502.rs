@@ -40,7 +40,7 @@ impl Nes6502 {
             stack_pointer : 0xFD,
             pc_counter : 0xc000,
             cycles_until_next : 0,
-            total_cycles : 0
+            total_cycles : 7
         }
     }
 
@@ -52,12 +52,13 @@ impl Nes6502 {
 
             while self.cycles_until_next > 0 {
                 self.cycles_until_next -= 1;
+                self.total_cycles += 1;
             }
         }
     }
 
     fn decode_instruction(&mut self, opcode : u8, ram : &mut RAM, rom : &ROM){
-        println!("{:#x} {:#04x} A:{:#04x} X:{:#04x} Y:{:#04x} P:{:#04x} SP:{:#04x} cycles:{}", self.pc_counter, opcode, self.accumulator, self.x, self.y, self.status_flags, self.stack_pointer, self.cycles_until_next);
+        println!("{:#x} {:#04x} A:{:#04x} X:{:#04x} Y:{:#04x} P:{:#04x} SP:{:#04x} cycles:{}", self.pc_counter, opcode, self.accumulator, self.x, self.y, self.status_flags, self.stack_pointer, self.total_cycles);
         match opcode{
             // -------------------------------------------------------------------
             // add with carry start ---------------------------------------------- 
@@ -434,6 +435,7 @@ impl Nes6502 {
                 self.accumulator = immediate;
                 load_store::set_flags(immediate, &mut self.status_flags);
                 self.pc_counter += 2;
+                self.cycles_until_next = 2;
             },
             0xA5 => {
                 let zero_page = rom.read_value(self.pc_counter + 1);
@@ -468,6 +470,7 @@ impl Nes6502 {
                 self.x = immediate;
                 load_store::set_flags(immediate, &mut self.status_flags);
                 self.pc_counter += 2;
+                self.cycles_until_next = 2;
             },
             0xA6 => {
                 let zero_page = rom.read_value(self.pc_counter + 1);
@@ -490,6 +493,7 @@ impl Nes6502 {
                 self.y = immediate;
                 load_store::set_flags(immediate, &mut self.status_flags);
                 self.pc_counter += 2;
+                self.cycles_until_next = 2;
             },
             0xA4 => {
                 let zero_page = rom.read_value(self.pc_counter + 1);
