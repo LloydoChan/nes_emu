@@ -3,7 +3,7 @@ use crate::memory::{RAM, *};
 use crate::mem_map;
 
 pub fn jump_absolute(pc_reg : &mut u16, absolute_addr: u16, cycles : &mut u8){
-    *pc_reg = absolute_addr;
+    *pc_reg = swap_bytes(absolute_addr);
     *cycles = 3;
 }
 
@@ -14,7 +14,7 @@ pub fn jump_indirect(pc_reg : &mut u16, indirect_addr: u16, ram: &RAM, cycles : 
 }
 
 pub fn jump_subroutine(pc_reg : &mut u16, absolute_addr: u16, stack_ptr : &mut u8, ram: &mut RAM, cycles : &mut u8){
-    ram.push_address_on_stack(stack_ptr, *pc_reg - 1);
+    ram.push_address_on_stack(stack_ptr, *pc_reg + 2);
     *pc_reg = swap_bytes(absolute_addr);
     *cycles = 6;
 }

@@ -2,6 +2,30 @@
 // returning value
 use crate::mem_map::*;
 
+pub struct ROM {
+    rom_data : Box<[u8]>
+}
+
+impl ROM {
+    pub fn new( rom_info: Box<[u8]>) -> ROM {
+        ROM {
+            rom_data : rom_info
+        }
+    }
+
+    pub fn read_value(&self, addr : u16) -> u8 {
+        let real_addr = addr - 0xbff0;
+        self.rom_data[real_addr as usize]
+    }
+
+    pub fn read_mem_address(&self, addr : u16) -> u16 {
+        let real_addr = addr - 0xbff0;
+        ((self.rom_data[real_addr as usize] as u16) << 8) | 
+        self.rom_data[real_addr as usize + 1] as u16
+    }
+
+}
+
 pub struct RAM{
     ram : [u8; 2048],
 }
@@ -44,7 +68,7 @@ impl RAM {
         self.ram[addr] = push_address  as u8;
         self.ram[addr + 1] = (push_address >> 8) as u8; 
         //println!("{:#x}, {:#x}, {:#x}", push_address, self.ram[addr], self.ram[addr + 1] );
-        *stack_ptr += 2;
+        *stack_ptr -= 2;
     }
 
     pub fn push_value_on_stack(&mut self, stack_ptr : &mut u8, push_value : u8){
@@ -54,7 +78,7 @@ impl RAM {
 
         let addr = STACK_START + *stack_ptr as usize;
         self.ram[addr] = push_value;
-        *stack_ptr += 1;
+        *stack_ptr -= 1;
     }
 
     pub fn pop_address_off_stack(&mut self, stack_ptr : &mut u8) -> u16{
@@ -62,7 +86,7 @@ impl RAM {
             panic!("stack underflow")
         }
 
-        *stack_ptr -= 2;
+        *stack_ptr += 2;
         let addr = STACK_START + *stack_ptr as usize;
         let pop_addr = (self.ram[addr + 1] as u16) << 8 | 
                        self.ram[addr] as u16; 
@@ -72,9 +96,9 @@ impl RAM {
 
     pub fn pop_value_off_stack(&mut self, stack_ptr : &mut u8) -> u8{
 
-        *stack_ptr -= 1;
-        let addr = STACK_START + *stack_ptr as usize;
-        self.ram[addr] 
+        *stack_ptr += 1;
+        let value = self.ram[STACK_START + *stack_ptr as usize]; 
+        value
     }
    
 }
@@ -82,7 +106,7 @@ impl RAM {
 fn check_address(address: usize){
     match address{
         INTERNAL_RAM_START..=INTERNAL_RAM_END =>{
-            println!("ram access {:#x}", address);
+            //println!("ram access {:#x}", address);
         },
         _=> {panic!("{:#x}", address);}
     }

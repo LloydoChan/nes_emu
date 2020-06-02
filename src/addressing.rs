@@ -58,28 +58,42 @@ fn set_flags_add(in_val: u8, operand: u8, result: u8, status_flag: &mut u8){
    
     if result == 0 { 
         set_zero(status_flag) 
+    } else {
+        clear_zero(status_flag)
     }
 
     if (result & 0x80) != 0 {
         set_negative(status_flag)
+    } else {
+        clear_negative(status_flag)
     }
 
+    let mut of = false;
     // will overflow happen? assume use of carry flag
-    if (operand & in_val & 0x80) != 0  && (result & 0x80) == 0{
-       set_overflow(status_flag)
+    if (operand & in_val & 0x80) != 0  && ((result & 0x80) == 0){
+       of = true;
     }
    
-    if (operand & in_val & 0x40) != 0  && (result & 0x80) != 0{
-        set_overflow(status_flag)
+    if (operand & in_val & 0x40) != 0  && ((result & 0x80) != 0){
+        of = true;
+    }
+
+    if of {
+        set_overflow(status_flag);
+    } else {
+        clear_overflow(status_flag);
     }
 
     // will carry happen?
     // assume that this is lower byte to generate carry, don't add current carry
-    let (_, carry) = in_val.overflowing_add(operand);
-
+    let carry_value = *status_flag & CARRY_BIT;
+    let (_, carry) = in_val.overflowing_add(operand + carry_value);
+    
     if carry {
         set_carry(status_flag)
-    }   
+    }  else {
+        clear_carry(status_flag)
+    } 
 }
 
 fn set_flags_sub(in_val: u8, operand: u8, result: u8, status_flag: &mut u8){
@@ -113,11 +127,15 @@ fn set_flags_sub(in_val: u8, operand: u8, result: u8, status_flag: &mut u8){
 fn set_flags_or_and(in_val: u8, status_flag: &mut u8){
    
     if in_val == 0 { 
-        set_zero(status_flag) 
+        set_zero(status_flag); 
+    } else {
+        clear_zero(status_flag);
     }
 
      if (in_val & 0x80) != 0 {
-        set_negative(status_flag)
+        set_negative(status_flag);
+    }else{
+        clear_negative(status_flag);
     }
 }
 

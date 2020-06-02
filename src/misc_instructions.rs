@@ -6,9 +6,11 @@ use crate::mem_map;
 pub fn bittest_zero_page(pc_reg : &mut u16, accumulator : u8, operand: u8,  mem : &mut RAM, status_flags : &mut u8, cycles : &mut u8){
     let value = mem.read_mem_value(operand as u16);
     let result = accumulator & value;
-
+    
     if result == 0 {
         *status_flags |= ZERO_BIT;
+    } else {
+        *status_flags &= !ZERO_BIT;
     }
 
     if (value & 0x40) != 0 {
@@ -22,7 +24,7 @@ pub fn bittest_zero_page(pc_reg : &mut u16, accumulator : u8, operand: u8,  mem 
     }else{
         *status_flags &= !NEGATIVE_BIT;
     }
-
+   
     *cycles = 3;
     *pc_reg += 2;
 }
@@ -33,6 +35,8 @@ pub fn bittest_absolute(pc_reg : &mut u16, accumulator : u8, operand: u16,  mem 
 
     if result == 0 {
         *status_flags |= ZERO_BIT;
+    }else {
+        *status_flags &= !ZERO_BIT;
     }
 
     if (value & 0x40) != 0 {
@@ -67,10 +71,18 @@ pub fn break_force_interrupt(pc_reg: &mut u16, status: &mut u8, stack_ptr: &mut 
     *status |= BREAK_CMD_BIT;
 }
 
-pub fn push_acc_on_stack(pc_reg: &mut u16, accumulator_or_status : u8, stack_ptr: &mut u8, test_ram: &mut RAM, cycles : & mut u8){
+pub fn push_acc_on_stack(pc_reg: &mut u16, accumulator: u8, stack_ptr: &mut u8, test_ram: &mut RAM, cycles : & mut u8){
     *pc_reg += 1;
     *cycles = 3;
-    test_ram.push_value_on_stack(stack_ptr, accumulator_or_status);
+    test_ram.push_value_on_stack(stack_ptr, accumulator);
+}
+
+pub fn push_status_on_stack(pc_reg: &mut u16, status: u8, stack_ptr: &mut u8, test_ram: &mut RAM, cycles : & mut u8){
+    *pc_reg += 1;
+    *cycles = 3;
+    let mut temp_status = status;
+    temp_status |= 0b0011_0000; 
+    test_ram.push_value_on_stack(stack_ptr, temp_status);
 }
 
 pub fn pull_acc_from_stack(pc_reg: &mut u16, accumulator : &mut u8, status: &mut u8, stack_ptr: &mut u8, test_ram: &mut RAM, cycles : & mut u8){
@@ -81,11 +93,16 @@ pub fn pull_acc_from_stack(pc_reg: &mut u16, accumulator : &mut u8, status: &mut
 
     if *accumulator == 0 {
         *status |= ZERO_BIT;
+    } else {
+        *status &= !ZERO_BIT;
     }
-
-    if (*accumulator & 0x8) != 0 {
+    
+    if (*accumulator & 0x80) != 0 {
         *status |= NEGATIVE_BIT;
+    } else {
+        *status &= !NEGATIVE_BIT;
     }
+    
 }
 
 pub fn pull_status_from_stack(pc_reg: &mut u16, status: &mut u8, stack_ptr: &mut u8, test_ram: &mut RAM, cycles : & mut u8){
@@ -93,6 +110,10 @@ pub fn pull_status_from_stack(pc_reg: &mut u16, status: &mut u8, stack_ptr: &mut
     *cycles = 4;
 
     *status = test_ram.pop_value_off_stack(stack_ptr);
+    // set bit 4 to 0
+    *status &= !0b0001_0000;
+    // set bit 5 to 1
+    *status |= 0b0010_0000;
 }
 
 // transfer_source_to_dest is intended for the many variants of transfer functions, like TAY Transfer Accumulator to Y
@@ -105,10 +126,14 @@ pub fn transfer_source_to_dest(pc_reg: &mut u16, source : u8, dest : &mut u8, st
 
     if *dest == 0 {
         *status |= ZERO_BIT;
+    } else {
+        *status &= !ZERO_BIT;
     }
 
     if (*dest & 0x8) != 0 {
         *status |= NEGATIVE_BIT;
+    }else {
+        *status &= !NEGATIVE_BIT;
     }
 }
 

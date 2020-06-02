@@ -2,14 +2,18 @@
 use crate::memory::*;
 use crate::flags::*;
 
-fn set_flags(in_val: u8, status_flag: &mut u8){
+pub fn set_flags(in_val: u8, status_flag: &mut u8){
    
     if in_val == 0 { 
         set_zero(status_flag) 
+    }else{
+        clear_zero(status_flag)
     }
 
      if (in_val & 0x80) != 0 {
         set_negative(status_flag)
+    }else{
+        clear_negative(status_flag)
     }
 }
 
@@ -36,14 +40,13 @@ pub fn load_zero_page_reg(pc_reg: &mut u16, operand: u8, offset: u8, memory: &RA
 pub fn store_zero_page(pc_reg: &mut u16, to_store: u8, operand: u8, offset: u8, memory: &mut RAM, cycles: &mut u8){
     let addr = operand.wrapping_add(offset);
     memory.write_mem_value(addr as u16, to_store);
-
     *cycles = 3;
     *pc_reg += 2; 
 }
 
 
 pub fn absolute_load(pc_reg: &mut u16, operand: u16, offset: u8, memory: &RAM, status_flag: &mut u8, cycles: &mut u8) -> u8 {
-    let addr = operand + offset as u16;
+    let addr = swap_bytes(operand) + offset as u16;
     let ret_val = memory.read_mem_value(addr as u16);
     set_flags(ret_val, status_flag);
 
@@ -58,7 +61,7 @@ pub fn absolute_load(pc_reg: &mut u16, operand: u16, offset: u8, memory: &RAM, s
 }
 
 pub fn store_absolute(pc_reg: &mut u16, to_store: u8, operand: u16, offset: u8, memory: &mut RAM, cycles: &mut u8){
-    let addr = operand + offset as u16;
+    let addr = swap_bytes(operand) + offset as u16;
     memory.write_mem_value(addr as u16, to_store);
     *pc_reg += 3;
     *cycles = 4;

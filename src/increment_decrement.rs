@@ -23,8 +23,8 @@ pub enum Operation{
 fn match_on_op(mut in_val : u8, op : Operation) -> u8{
 
     match op{
-        Operation::Inc => in_val += 1,
-        Operation::Dec => in_val -= 1,
+        Operation::Inc => in_val = in_val.wrapping_add(1),
+        Operation::Dec => in_val = in_val.wrapping_sub(1),
         _=> panic!()
     }
 

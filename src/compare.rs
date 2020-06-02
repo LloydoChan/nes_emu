@@ -7,10 +7,22 @@ fn set_flags(status_flags : &mut u8, reg_acc : u8, comp_value: u8){
 
     if reg_acc == comp_value {
         *status_flags |= ZERO_BIT;
+    } else {
+        *status_flags &= !ZERO_BIT;
     }
 
     if reg_acc >= comp_value {
         *status_flags |= CARRY_BIT;
+    } else {
+        *status_flags &= !CARRY_BIT;
+    }
+
+    let result = reg_acc.wrapping_sub(comp_value);
+
+    if result & 0x80 != 0 {
+        *status_flags |= NEGATIVE_BIT;
+    }else{
+        *status_flags &= !NEGATIVE_BIT;
     }
 
 }
