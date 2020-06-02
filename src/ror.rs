@@ -103,7 +103,7 @@ pub fn ror_absolute(pc_reg : &mut u16, operand: u16, status_flags: &mut u8, memo
         *status_flags |= NEGATIVE_BIT;
     } 
 
-    memory.write_mem_value(swap_bytes(operand), value);
+    memory.write_mem_value(operand, value);
 
     *cycles_until_next = 6;
     *pc_reg += 3;
@@ -130,7 +130,7 @@ pub fn ror_absolute_x(pc_reg : &mut u16, x_val : u8, operand: u16, status_flags:
         *status_flags |= NEGATIVE_BIT;
     } 
 
-    memory.write_mem_value(swap_bytes(operand) + x_val as u16, value);
+    memory.write_mem_value(operand + x_val as u16, value);
 
     *cycles_until_next = 7;
     *pc_reg += 3;

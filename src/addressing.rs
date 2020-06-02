@@ -109,14 +109,24 @@ fn set_flags_sub(in_val: u8, operand: u8, result: u8, status_flag: &mut u8){
     } else {
         clear_negative(status_flag);
     }
-                            
-    if (operand & in_val & 0x80) != 0  && (result & 0x80) == 0{
-        set_overflow(status_flag)
-    } else {
+                          
+    let mut set_v = false;
+
+    if ((operand & in_val & 0x80) == 0)  && ((result & 0x80) != 0){
+        set_overflow(status_flag);
         clear_overflow(status_flag);
+        set_v = true;
+    } 
+
+    if ((operand & in_val & 0x80) != 0)  && ((result & 0x80) != 0){
+        clear_overflow(status_flag);
+        set_v = true;
+    } 
+
+    if !set_v {
+        set_overflow(status_flag);
     }
     
-
     let (_, carry) = in_val.overflowing_sub(operand);
 
     //clear carry if overflow

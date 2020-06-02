@@ -26,3 +26,9 @@ pub const APU_REGISTERS_END: usize = 0x4015;
 
 pub const JOYPAD_ONE: usize = 0x4016;
 pub const JOYPAD_TWO: usize = 0x4017;
+
+pub const MIRROR_ONE_ROM_START: usize = 0x8000;
+pub const MIRROR_ONE_ROM_END: usize = 0xBFFF;
+
+pub const MIRROR_TWO_ROM_START: usize = 0xC000;
+pub const MIRROR_TWO_ROM_END: usize = 0xFFFF;

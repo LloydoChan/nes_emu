@@ -99,7 +99,7 @@ pub fn asl_accumulator(pc_reg : &mut u16, accumulator: &mut u8, status_flags: &m
     }
 
     value <<= 1;
-    let addr = swap_bytes(operand);
+    let addr = operand;
     memory.write_mem_value(addr as u16, value);
 
     if (value & 0x80) != 0 {
@@ -128,7 +128,7 @@ pub fn asl_accumulator(pc_reg : &mut u16, accumulator: &mut u8, status_flags: &m
     }
 
     value <<= 1;
-    let addr = swap_bytes(operand) + x_reg as u16;
+    let addr = operand + x_reg as u16;
     memory.write_mem_value(addr, value);
 
     if (value & 0x80) != 0 {

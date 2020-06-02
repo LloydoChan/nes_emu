@@ -100,7 +100,7 @@ pub fn rol_absolute(pc_reg : &mut u16, operand: u16, status_flags: &mut u8, memo
 
     value <<= 1;
     value |= current_carry;
-    memory.write_mem_value(swap_bytes(operand), value);
+    memory.write_mem_value(operand, value);
       
     if (value & 0x80) != 0 {
         *status_flags |= NEGATIVE_BIT;
@@ -132,7 +132,7 @@ pub fn rol_absolute_x(pc_reg : &mut u16, x_val : u8, operand: u16, status_flags:
     value <<= 1;
     value |= current_carry;
 
-    memory.write_mem_value(swap_bytes(operand) + x_val as u16, value);
+    memory.write_mem_value(operand + x_val as u16, value);
 
     if (value & 0x80) != 0 {
         *status_flags |= NEGATIVE_BIT;

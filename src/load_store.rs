@@ -46,7 +46,7 @@ pub fn store_zero_page(pc_reg: &mut u16, to_store: u8, operand: u8, offset: u8, 
 
 
 pub fn absolute_load(pc_reg: &mut u16, operand: u16, offset: u8, memory: &RAM, status_flag: &mut u8, cycles: &mut u8) -> u8 {
-    let addr = swap_bytes(operand) + offset as u16;
+    let addr = operand + offset as u16;
     let ret_val = memory.read_mem_value(addr as u16);
     set_flags(ret_val, status_flag);
 
@@ -61,7 +61,7 @@ pub fn absolute_load(pc_reg: &mut u16, operand: u16, offset: u8, memory: &RAM, s
 }
 
 pub fn store_absolute(pc_reg: &mut u16, to_store: u8, operand: u16, offset: u8, memory: &mut RAM, cycles: &mut u8){
-    let addr = swap_bytes(operand) + offset as u16;
+    let addr = operand + offset as u16;
     memory.write_mem_value(addr as u16, to_store);
     *pc_reg += 3;
     *cycles = 4;

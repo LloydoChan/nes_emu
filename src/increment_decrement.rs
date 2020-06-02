@@ -61,9 +61,9 @@ pub fn incdec_memory_zero_page_x(pc_reg : &mut u16, operand : u8, x_val : u8, st
 }
 
 pub fn incdec_memory_absolute(pc_reg : &mut u16, operand : u16, status_flags: &mut u8, memory : &mut RAM, cycles : &mut u8, op : Operation) {
-    let mut mem_value = memory.read_mem_value(swap_bytes(operand));
+    let mut mem_value = memory.read_mem_value(operand);
     mem_value = match_on_op(mem_value, op);
-    memory.write_mem_value(swap_bytes(operand), mem_value);
+    memory.write_mem_value(operand, mem_value);
 
     set_flags(status_flags, mem_value);
 
@@ -72,9 +72,9 @@ pub fn incdec_memory_absolute(pc_reg : &mut u16, operand : u16, status_flags: &m
 }
 
 pub fn incdec_memory_absolute_x(pc_reg : &mut u16, operand : u16, x_val : u8, status_flags: &mut u8, memory : &mut RAM, cycles : &mut u8, op : Operation) {
-    let mut mem_value = memory.read_mem_value(swap_bytes(operand) + x_val as u16);
+    let mut mem_value = memory.read_mem_value(operand + x_val as u16);
     mem_value = match_on_op(mem_value, op);
-    memory.write_mem_value(swap_bytes(operand) + x_val as u16, mem_value);
+    memory.write_mem_value(operand + x_val as u16, mem_value);
 
     set_flags(status_flags, mem_value);
 

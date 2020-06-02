@@ -5,7 +5,7 @@ use std::io::Read;
 use std::path::Path;
 
 use nes_emu::nes_6502::Nes6502;
-use nes_emu::memory::{RAM, ROM};
+use nes_emu::memory::RAM;
 
 
 fn main() {
@@ -19,11 +19,11 @@ fn main() {
 
     let rom_data = load_binary(rom_path);
     let mut ram : RAM = RAM::new();
-    let rom : ROM = ROM::new(rom_data);
-
+    ram.load_rom(rom_data);
+    
     let mut cpu : Nes6502 = Nes6502::new();
     loop {
-        cpu.run(&mut ram, &rom);
+        cpu.run(&mut ram);
     }
 }
 

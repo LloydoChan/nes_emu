@@ -23,13 +23,13 @@ pub fn adc_zero_page_x(operand : u8, x_reg : u8, pc_reg : &mut u16, accumulator:
 }
 
 pub fn adc_absolute(operand : u16, pc_reg : &mut u16, accumulator: &mut u8, mut status_flags: &mut u8, memory : &RAM, cycles_until_next : &mut u8){
-    *accumulator = addressing::absolute(*accumulator, swap_bytes(operand), memory, &mut status_flags, Operation::Add);
+    *accumulator = addressing::absolute(*accumulator, operand, memory, &mut status_flags, Operation::Add);
     *pc_reg += 3;
     *cycles_until_next = 4;
 }
 
 pub fn adc_absolute_reg(operand : u16, reg : u8, pc_reg : &mut u16, accumulator: &mut u8, mut status_flags: &mut u8, memory : &RAM, cycles_until_next : &mut u8){
-    *accumulator = addressing::absolute_reg(*accumulator, reg, swap_bytes(operand), memory, &mut status_flags, Operation::Add);
+    *accumulator = addressing::absolute_reg(*accumulator, reg, operand, memory, &mut status_flags, Operation::Add);
     *pc_reg += 3;
     *cycles_until_next = 4;
 }
