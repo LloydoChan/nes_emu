@@ -732,7 +732,7 @@ impl Nes6502 {
             },
             0x9A => {
                  // transfer x to stack pointer
-                misc_instructions::transfer_x_to_stack_pointer(&mut self.pc_counter, self.x, &mut self.status_flags, &mut self.cycles_until_next);
+                misc_instructions::transfer_x_to_stack_pointer(&mut self.pc_counter, self.x, &mut self.stack_pointer, &mut self.cycles_until_next);
             },
             0x98 => {
                 // transfer y to acc

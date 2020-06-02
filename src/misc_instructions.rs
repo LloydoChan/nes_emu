@@ -130,7 +130,7 @@ pub fn transfer_source_to_dest(pc_reg: &mut u16, source : u8, dest : &mut u8, st
         *status &= !ZERO_BIT;
     }
 
-    if (*dest & 0x8) != 0 {
+    if (*dest & 0x80) != 0 {
         *status |= NEGATIVE_BIT;
     }else {
         *status &= !NEGATIVE_BIT;
