@@ -8,7 +8,18 @@ pub fn jump_absolute(pc_reg : &mut u16, absolute_addr: u16, cycles : &mut u8){
 }
 
 pub fn jump_indirect(pc_reg : &mut u16, indirect_addr: u16, ram: &RAM, cycles : &mut u8){
-    let addr = ram.read_mem_address(indirect_addr);
+    let mut addr = ram.read_mem_address(indirect_addr);
+
+    // is the indirect addr on a page boundary?
+    if indirect_addr & 0x00FF != 0 {
+        // need to get msb from xx00 where xx is the first byte in the indirect address
+        let msb_addr = (indirect_addr >> 8) << 8;
+        let msb = (ram.read_mem_value(msb_addr) as u16) << 8;
+        addr = (addr << 8 ) >> 8;
+        addr = msb | addr;
+    }
+    
+    
     *pc_reg = addr;
     *cycles = 5;
 }

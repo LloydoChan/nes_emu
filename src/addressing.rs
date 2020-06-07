@@ -109,24 +109,21 @@ fn set_flags_sub(in_val: u8, operand: u8, result: u8, status_flag: &mut u8){
     } else {
         clear_negative(status_flag);
     }
+
                           
-    let mut set_v = false;
+    // overflow flag test as mentioned on http://www.righto.com/2012/12/the-6502-overflow-flag-explained.html
+    let m7 = ((in_val  >> 7) & 0x1) != 0;
+    let n7 = ((!operand >> 7) & 0x1) != 0;
+    let c6 = ((result >> 6) & 0x1) != 0;
 
-    if ((operand & in_val & 0x80) == 0)  && ((result & 0x80) != 0){
-        set_overflow(status_flag);
+    let overflow_test = (!m7 & !n7 & c6) | (m7 & n7 & !c6);
+
+    if overflow_test {
+        set_overflow(status_flag)
+    } else {
         clear_overflow(status_flag);
-        set_v = true;
-    } 
-
-    if ((operand & in_val & 0x80) != 0)  && ((result & 0x80) != 0){
-        clear_overflow(status_flag);
-        set_v = true;
-    } 
-
-    if !set_v {
-        set_overflow(status_flag);
     }
-    
+
     let (_, carry) = in_val.overflowing_sub(operand);
 
     //clear carry if overflow

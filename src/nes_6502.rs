@@ -786,9 +786,24 @@ impl Nes6502 {
             //subc instructions end
             //------------------------
             //nop
-            0xEA => {
+            0xEA | 0xFA | 0x1A | 0x5A | 0x7A | 0xDA | 0x3A | 0xFA => {
                 misc_instructions::NOP(&mut self.pc_counter, &mut self.cycles_until_next);
             },
+            // unofficial IGN nop 3 byte
+            0x0C | 0x1C | 0x3C | 0x5C | 0x7C | 0xDC | 0xFC => {
+                self.pc_counter += 3;
+                self.cycles_until_next = 5;
+            },
+            // unofficial IGN nop 2 bytes
+            0x04 | 0x44 | 0x64 | 0x14 | 0x34 | 0x54 | 0x74 | 0xD4 | 0xF4 | 0x80 => {
+                self.pc_counter += 2;
+                self.cycles_until_next = 4;
+            },
+            // misc
+            0xD8 | 0xB8 | 0xF8 => {
+                self.pc_counter += 1;
+                self.cycles_until_next = 2;
+            }
             _=> panic!(),
         }
     }

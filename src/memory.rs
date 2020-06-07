@@ -2,46 +2,50 @@
 // returning value
 use crate::mem_map::*;
 
-const RAM_SIZE : usize = 32 * 1024;
+const RAM_SIZE : usize = 2 * 1024;
+const ROM_SIZE : usize = 32 * 1024;
 
 pub struct RAM{
     ram : [u8; RAM_SIZE],
+    rom : [u8; ROM_SIZE]
 }
+
 
 impl RAM {
 
     pub fn new() -> RAM{
         RAM{
-            ram : [0; RAM_SIZE]
+            ram : [0; RAM_SIZE],
+            rom : [0; ROM_SIZE]
         }
     }
 
     pub fn load_rom(&mut self, rom_data : Box<[u8]>) {
         for (i, elem) in rom_data.iter().enumerate() {
-            self.ram[0x800 + i] = *elem; 
+            self.rom[i] = *elem; 
         }
     }
 
     pub fn read_mem_value(&self, addr: u16) -> u8 {
-        let real_addr = check_address(addr as usize);
-        self.ram[real_addr as usize]
+        self.check_address_read(addr as usize)
     }
 
     pub fn read_mem_address(&self, addr: u16) -> u16 {
-        let real_addr = check_address(addr as usize);
-        ((self.ram[(real_addr + 1) as usize] as u16) << 8) |
-        (self.ram[real_addr as usize] as u16)
+        let byte_one = self.check_address_read(addr as usize);
+        let byte_two = self.check_address_read((addr + 1) as usize);
+        ((byte_two as u16) << 8) |
+        (byte_one as u16)
     }
 
     pub fn write_mem_value(&mut self, addr: u16, value : u8){
-        let real_addr = check_address(addr as usize);
-        self.ram[real_addr as usize] = value;
+        *(self.check_address(addr as usize)) = value;
     }
 
     pub fn write_mem_address(&mut self, addr: u16, new_addr : u16){
-        let real_addr = check_address(addr as usize);
-        self.ram[real_addr as usize] = (new_addr) as u8;
-        self.ram[(real_addr + 1) as usize] = (new_addr >> 8) as u8; 
+        let byte_one = self.check_address(addr as usize);
+        *byte_one = (new_addr) as u8;
+        let byte_two = self.check_address((addr + 1) as usize);
+        *byte_two = (new_addr >> 8) as u8; 
     }
 
     pub fn push_address_on_stack(&mut self, stack_ptr : &mut u8, push_address : u16){
@@ -85,27 +89,48 @@ impl RAM {
         let value = self.ram[STACK_START + *stack_ptr as usize]; 
         value
     }
+
+    // maps addresses to other addresses
+    fn check_address(&mut self, address: usize) -> &mut u8 {
+        match address{
+            INTERNAL_RAM_START..=INTERNAL_RAM_MIRROR_THREE_END =>{
+                let lookup = address & 0x7FF;
+                &mut self.ram[lookup]
+            },
+            MIRROR_ONE_ROM_START..=MIRROR_ONE_ROM_END => {
+                let base = address - 0x8000;
+                &mut self.rom[base]
+            },
+            MIRROR_TWO_ROM_START..=MIRROR_TWO_ROM_END => {
+                let base = address - 0xC000;
+                &mut self.rom[base]
+            },
+
+            _=> {panic!("{:#x}", address);}
+        }
+    }
+
+    fn check_address_read(&self, address: usize) -> u8 {
+        match address{
+            INTERNAL_RAM_START..=INTERNAL_RAM_MIRROR_THREE_END =>{
+                let lookup = address & 0x7FF;
+                self.ram[lookup]
+            },
+            MIRROR_ONE_ROM_START..=MIRROR_ONE_ROM_END => {
+                let base = address - 0x8000;
+                self.rom[base]
+            },
+            MIRROR_TWO_ROM_START..=MIRROR_TWO_ROM_END => {
+                let base = address - 0xBFF0;
+                self.rom[base]
+            },
+            _=> {panic!("{:#x}", address);}
+        }
+    }
    
 }
 
-// maps addresses to other addresses
-fn check_address(address: usize) -> usize{
-    match address{
-        INTERNAL_RAM_START..=INTERNAL_RAM_MIRROR_THREE_END =>{
-            address & 0x7FF
-        },
-        MIRROR_ONE_ROM_START..=MIRROR_ONE_ROM_END => {
-           let base = address - 0x8000;
-           base + 0x810 
-        },
-        MIRROR_TWO_ROM_START..=MIRROR_TWO_ROM_END => {
-            let base = address - 0xC000;
-            base + 0x810 
-         },
 
-        _=> {panic!("{:#x}", address);}
-    }
-}
 
 pub fn swap_bytes(in_val : u16) -> u16 {
     let out_val = ( in_val << 8 ) | (in_val >> 8);
