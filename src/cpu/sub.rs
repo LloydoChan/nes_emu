@@ -1,5 +1,5 @@
 //sub.rs - subtract with carry
-use crate::addressing::{self, Operation};
+use super::addressing::{self, Operation};
 use crate::memory::{RAM, *};
 
 pub fn sbc_immediate(operand : u8, pc_reg : &mut u16, accumulator: &mut u8, mut status_flags: &mut u8, cycles_until_next : &mut u8){

@@ -4,7 +4,8 @@ use std::fs;
 use std::io::Read;
 use std::path::Path;
 
-use nes_emu::nes_6502::Nes6502;
+use nes_emu::cpu::nes_6502::Nes6502;
+use nes_emu::ppu::ppu::PPU;
 use nes_emu::memory::RAM;
 
 
@@ -22,8 +23,10 @@ fn main() {
     ram.load_rom(rom_data);
     
     let mut cpu : Nes6502 = Nes6502::new();
+    let mut ppu : PPU = PPU::default();
     loop {
         cpu.run(&mut ram);
+        ppu.run(&ram);
     }
 }
 

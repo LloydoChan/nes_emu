@@ -1,7 +1,7 @@
 //increment_decrement.rs - source for inc and dec isntructions
 
 use crate::memory::{*, RAM};
-use crate::flags::*;
+use super::flags::*;
 
 fn set_flags(status_flags : &mut u8, new_value : u8){
 

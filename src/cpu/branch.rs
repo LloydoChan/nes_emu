@@ -2,7 +2,7 @@
 
 // all take 8 bit signed relative offset, all branch on status of a flag...
 
-use crate::flags;
+use super::flags;
 
 
 

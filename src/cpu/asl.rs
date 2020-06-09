@@ -1,8 +1,8 @@
 //asl.rs arithmetic shift left
 
 use crate::memory::*;
-use crate::shift_addr::*;
-use crate::flags::*;
+use super::shift_addr::*;
+use super::flags::*;
 
 
 pub fn asl_accumulator(pc_reg : &mut u16, accumulator: &mut u8, status_flags: &mut u8, cycles_until_next : &mut u8){

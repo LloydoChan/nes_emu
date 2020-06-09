@@ -1,6 +1,6 @@
 // adc.rs - contains all 8 functions to support adc instructions
 
-use crate::addressing::{self, Operation};
+use super::addressing::{self, Operation};
 use crate::memory::{RAM, *};
 
 

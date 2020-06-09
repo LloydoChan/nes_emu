@@ -1,8 +1,8 @@
 //ror.rs rotate right
 
 use crate::memory::*;
-use crate::shift_addr::*;
-use crate::flags::*;
+use super::shift_addr::*;
+use super::flags::*;
 
 pub fn ror_accumulator(pc_reg : &mut u16, accumulator: &mut u8, status_flags: &mut u8, cycles_until_next : &mut u8){
     let current_carry = *status_flags & 0x1;

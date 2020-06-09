@@ -1,6 +1,6 @@
 // misc_instructions.rs for BIT instruction, NOP and more
 use crate::memory::{RAM, *};
-use crate::flags::*;
+use super::flags::*;
 use crate::mem_map;
 
 pub fn bittest_zero_page(pc_reg : &mut u16, accumulator : u8, operand: u8,  mem : &mut RAM, status_flags : &mut u8, cycles : &mut u8){

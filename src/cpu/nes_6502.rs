@@ -2,21 +2,21 @@
 // looking to do a lot of high level stuff regarding the 6502 in here
 // will put instructions in different .rs files.
 use crate::memory::RAM;
-use crate::adc;
-use crate::and;
-use crate::asl;
-use crate::branch;
-use crate::misc_instructions;
-use crate::flags;
-use crate::compare;
-use crate::jumps;
-use crate::increment_decrement;
-use crate::load_store;
-use crate::lsr;
-use crate::or;
-use crate::rol;
-use crate::ror;
-use crate::sub;
+use super::adc;
+use super::and;
+use super::asl;
+use super::branch;
+use super::misc_instructions;
+use super::flags;
+use super::compare;
+use super::jumps;
+use super::increment_decrement;
+use super::load_store;
+use super::lsr;
+use super::or;
+use super::rol;
+use super::ror;
+use super::sub;
 
 #[derive(Debug)]
 pub struct Nes6502{

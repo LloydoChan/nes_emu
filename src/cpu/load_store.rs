@@ -1,6 +1,6 @@
 // load_store - load and store instructions on 6502
 use crate::memory::*;
-use crate::flags::*;
+use super::flags::*;
 
 pub fn set_flags(in_val: u8, status_flag: &mut u8){
    

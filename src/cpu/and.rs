@@ -1,8 +1,8 @@
 //and.rs - for logical AND instructions
 
-use crate::addressing::{self, Operation};
+use super::addressing::{self, Operation};
 use crate::memory::*;
-use crate::flags;
+use super::flags;
 
 pub fn and_immediate(operand : u8, pc_reg : &mut u16, accumulator: &mut u8, status_flags: &mut u8, cycles_until_next : &mut u8){
     *accumulator = addressing::immediate(*accumulator, operand, status_flags, Operation::And);

@@ -1,7 +1,7 @@
 //compare.rs - all compare instructions
 
 use crate::memory::{RAM, *};
-use crate::flags::*;
+use super::flags::*;
 
 fn set_flags(status_flags : &mut u8, reg_acc : u8, comp_value: u8){
 

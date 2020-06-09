@@ -4,7 +4,7 @@
 //TODO page crossing and extra cycles?
 
 use crate::memory::*;
-use crate::flags::*;
+use super::flags::*;
 
 pub enum Operation{
     Add,

@@ -32,3 +32,39 @@ pub const MIRROR_ONE_ROM_END: usize = 0xBFFF;
 
 pub const MIRROR_TWO_ROM_START: usize = 0xC000;
 pub const MIRROR_TWO_ROM_END: usize = 0xFFFF;
+
+
+// VRAM
+//pattern tables one and two
+pub const PATTERN_TABLE_ZERO_START: usize = 0x0;
+pub const PATTERN_TABLE_ZERO_END: usize = 0xFFF;
+
+pub const PATTERN_TABLE_ONE_START: usize = 0x1000;
+pub const PATTERN_TABLE_ONE_END: usize = 0x1FFF;
+
+pub const NAME_TABLE_ZERO_START: usize = 0x2000;
+pub const NAME_TABLE_ZERO_END: usize = 0x23FF;
+
+pub const NAME_TABLE_ONE_START: usize = 0x2400;
+pub const NAME_TABLE_ONE_END: usize = 0x27FF;
+
+pub const NAME_TABLE_TWO_START: usize = 0x2800;
+pub const NAME_TABLE_TWO_END: usize = 0x2BFF;
+
+pub const NAME_TABLE_THREE_START: usize = 0x2C00;
+pub const NAME_TABLE_THREE_END: usize = 0x2FFF;
+
+pub const NAME_TABLE_ZERO_MIRROR_START: usize = 0x3000;
+pub const NAME_TABLE_ZERO_MIRROR_END: usize = 0x33FF;
+
+pub const NAME_TABLE_ONE_MIRROR_START: usize = 0x3400;
+pub const NAME_TABLE_ONE_MIRROR_END: usize = 0x37FF;
+
+pub const NAME_TABLE_TWO_MIRROR_START: usize = 0x3800;
+pub const NAME_TABLE_TWO_MIRROR_END: usize = 0x3BFF;
+
+pub const NAME_TABLE_THREE_MIRROR_START: usize = 0x3C00;
+pub const NAME_TABLE_THREE_MIRROR_END: usize = 0x3EFF;
+
+pub const PALLETE_RAM_INDICES_START: usize = 0x3F00;
+pub const PALLETE_RAM_INDICES_END: usize = 0x3F1F;

@@ -3,11 +3,16 @@
 use crate::mem_map::*;
 
 const RAM_SIZE : usize = 2 * 1024;
+const VRAM_SIZE : usize = 2 * 1024;
 const ROM_SIZE : usize = 32 * 1024;
+const CHR_SIZE : usize = 4 * 1024;
 
 pub struct RAM{
     ram : [u8; RAM_SIZE],
-    rom : [u8; ROM_SIZE]
+    rom : [u8; ROM_SIZE],
+    ppu_ram : [u8; VRAM_SIZE],
+    chr_ram : [u8; CHR_SIZE],
+    OAM     : [u8; 256]
 }
 
 
@@ -16,7 +21,10 @@ impl RAM {
     pub fn new() -> RAM{
         RAM{
             ram : [0; RAM_SIZE],
-            rom : [0; ROM_SIZE]
+            rom : [0; ROM_SIZE],
+            ppu_ram : [0; VRAM_SIZE],
+            chr_ram : [0; CHR_SIZE],
+            OAM : [0; 256]
         }
     }
 
@@ -79,12 +87,11 @@ impl RAM {
         let addr = STACK_START + *stack_ptr as usize;
         let pop_addr = (self.ram[addr] as u16) << 8 | 
                        self.ram[addr-1] as u16; 
-        //println!("pop addr off stack {:#x}, {:#x}, {:#x}", pop_addr, self.ram[addr - 1], self.ram[addr] );
+        
         pop_addr
     }
 
     pub fn pop_value_off_stack(&mut self, stack_ptr : &mut u8) -> u8{
-
         *stack_ptr += 1;
         let value = self.ram[STACK_START + *stack_ptr as usize]; 
         value
@@ -123,6 +130,31 @@ impl RAM {
             MIRROR_TWO_ROM_START..=MIRROR_TWO_ROM_END => {
                 let base = address - 0xBFF0;
                 self.rom[base]
+            },
+            _=> {panic!("{:#x}", address);}
+        }
+    }
+
+    // maps vram addresses to other addresses
+    fn check_vram_address(&mut self, address: usize) -> &mut u8 {
+        match address{
+            PATTERN_TABLE_ZERO_START..=PATTERN_TABLE_ZERO_END =>{
+                todo!();
+            },
+            PATTERN_TABLE_ONE_START..=PATTERN_TABLE_ONE_END =>{
+                todo!();
+            },
+            NAME_TABLE_ZERO_START..=NAME_TABLE_ZERO_END =>{
+                todo!();
+            },
+            NAME_TABLE_ONE_START..=NAME_TABLE_ONE_END =>{
+                todo!();
+            },
+            NAME_TABLE_TWO_START..=NAME_TABLE_TWO_END =>{
+                todo!();
+            },
+            NAME_TABLE_THREE_START..=NAME_TABLE_THREE_END =>{
+                todo!();
             },
             _=> {panic!("{:#x}", address);}
         }

@@ -1,7 +1,7 @@
 //lsr.rs - logical shift right
 use crate::memory::*;
-use crate::shift_addr::*;
-use crate::flags::*;
+use super::shift_addr::*;
+use super::flags::*;
 
 
 

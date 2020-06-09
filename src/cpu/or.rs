@@ -1,6 +1,6 @@
 //or.rs - opcodes for xor and inclusive or dealt with!
 
-use crate::addressing::{self, Operation};
+use super::addressing::{self, Operation};
 use crate::memory::{RAM, *};
 
 
