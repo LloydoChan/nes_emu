@@ -14,8 +14,6 @@ pub struct PPU{
     OAMDATA : u8,
     PPUSCROLL : ppuScroll,
     PPUADDR : ppuAddr,
-
-    reg_write : [u8; 8]
 }
 
 fn get_bit(byte : u8, index: u8) -> u8 {
@@ -24,74 +22,78 @@ fn get_bit(byte : u8, index: u8) -> u8 {
 
 impl PPU {
     
-    pub fn run(&mut self, mem : &RAM){
+    pub fn run(&mut self, mem : &mut RAM){
         // run?
         let mut reg = PPU_REGISTERS_START;
 
-        if self.reg_write[0] != 0 {
+        if mem.was_written(0) {
             let ppuCtrlVal = mem.read_mem_value(reg as u16);
             self.updatePpuCtrl(ppuCtrlVal);
         }
         
         reg += 1;
         
-        if self.reg_write[1] != 0 {
+        if mem.was_written(1) {
             let ppuMaskVal = mem.read_mem_value(reg as u16);
             self.updatePpuMask(ppuMaskVal);
         }
 
         reg += 1;
-        
-        if self.reg_write[2] != 0 {
-            let ppuStatus = mem.read_mem_value(reg as u16);
-            self.updatePpuStatus(ppuStatus);
-        }
 
+        // check for ppu status read
+        if mem.was_read(2) {
+            self.readPpuStatus();
+        }
 
         reg += 1;
         
-        if self.reg_write[3] != 0 {
+        if mem.was_written(3) {
             let OAMaddr = mem.read_mem_value(reg as u16);
             self.OAMADDR = OAMaddr;
         }
 
         reg += 1;
         
-        if self.reg_write[4] != 0 {
+        if mem.was_written(4) {
             let OAMdata = mem.read_mem_value(reg as u16);
             // TODO
         }
 
         reg += 1;
         
-        if self.reg_write[5] != 0 {
+        if mem.was_written(5) {
             let scroll = mem.read_mem_value(reg as u16);
             self.updatePpuScroll(scroll);
         }
 
         reg += 1;
         
-        if self.reg_write[6] != 0 {
+        if mem.was_written(6) {
             let addr = mem.read_mem_value(reg as u16);
             self.updatePpuAddr(addr);
         }
 
         reg += 1;
         
-        if self.reg_write[7] != 0 {
+        if mem.was_written(7) {
             let value = mem.read_mem_value(reg as u16);
             // write value to mem address stored in ppu addr
-            // TODO
+            let addr = self.PPUADDR.address as usize;
+            mem.write_vram_value(addr, value);
+            self.PPUADDR.address += self.PPUCTRL.VRAM_address_increment;
         }
 
-        for i in 0..=7 {
-            self.reg_write[i as usize] = 0;
+        if mem.was_read(7) {
+            let addr = self.PPUADDR.address as u16;
+            let value = mem.read_mem_value(addr);
+            mem.write_mem_value(0x2007, value);
+            self.PPUADDR.address += self.PPUCTRL.VRAM_address_increment;
+            // TODO potential problem with internal read buffer?
         }
+
+        mem.clear_read_write_regs();
     }
 
-    pub fn set_write(&mut self, index : usize){
-        self.reg_write[index] = 1;
-    }
 
     pub fn updatePpuCtrl(&mut self, byte_val : u8){
         let name_table_idx = byte_val & 0x03;
@@ -122,16 +124,15 @@ impl PPU {
         self.PPUMASK.emphasize_blue = get_bit(byte_val, 7);
     }
 
-    pub fn updatePpuStatus(&mut self, byte_val : u8){
-        todo!();
-        // read only, but some effects from reading this reg
+    pub fn readPpuStatus(&mut self){
+        self.PPUSCROLL.write_byte = 0;
+        self.PPUADDR.write_byte = 0;
     }
 
     pub fn updatePpuScroll(&mut self, byte_val : u8){
         // two writes to this write the address any writes to updatePpuAddr will write to
         if self.PPUSCROLL.write_byte == 0 {
             self.PPUSCROLL.horiz_offset = byte_val;
-            self.PPUADDR.write_byte += 1;
         } else {
             self.PPUSCROLL.vert_offset = byte_val;
         }
@@ -142,10 +143,10 @@ impl PPU {
         // upper byte / big endian first
         if self.PPUADDR.write_byte == 0 {
             self.PPUADDR.address = 0;
-            self.PPUADDR.address = (byte_val as u16) << 8;
+            self.PPUADDR.address = ((byte_val as u16) << 8) as usize;
             self.PPUADDR.write_byte += 1;
         } else {
-            self.PPUADDR.address |= (byte_val as u16);
+            self.PPUADDR.address |= ((byte_val as u16) as usize);
         }
     }
 
@@ -196,6 +197,6 @@ struct ppuScroll{
 
 #[derive(Default)]
 struct ppuAddr {
-    address : u16,
+    address : usize,
     write_byte : u8
 }

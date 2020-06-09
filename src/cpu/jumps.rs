@@ -7,7 +7,7 @@ pub fn jump_absolute(pc_reg : &mut u16, absolute_addr: u16, cycles : &mut u8){
     *cycles = 3;
 }
 
-pub fn jump_indirect(pc_reg : &mut u16, indirect_addr: u16, ram: &RAM, cycles : &mut u8){
+pub fn jump_indirect(pc_reg : &mut u16, indirect_addr: u16, ram: &mut RAM, cycles : &mut u8){
     let mut addr = ram.read_mem_address(indirect_addr);
 
     // is the indirect addr on a page boundary?

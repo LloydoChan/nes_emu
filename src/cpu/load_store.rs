@@ -17,7 +17,7 @@ pub fn set_flags(in_val: u8, status_flag: &mut u8){
     }
 }
 
-pub fn load_zero_page(pc_reg: &mut u16, operand: u8, memory: &RAM, status_flag: &mut u8, cycles: &mut u8) -> u8 {
+pub fn load_zero_page(pc_reg: &mut u16, operand: u8, memory: &mut RAM, status_flag: &mut u8, cycles: &mut u8) -> u8 {
     let ret_val = memory.read_mem_value(operand as u16);
     set_flags(ret_val, status_flag);
 
@@ -27,7 +27,7 @@ pub fn load_zero_page(pc_reg: &mut u16, operand: u8, memory: &RAM, status_flag: 
     ret_val
 }
 
-pub fn load_zero_page_reg(pc_reg: &mut u16, operand: u8, offset: u8, memory: &RAM, status_flag: &mut u8, cycles: &mut u8) -> u8 {
+pub fn load_zero_page_reg(pc_reg: &mut u16, operand: u8, offset: u8, memory: &mut RAM, status_flag: &mut u8, cycles: &mut u8) -> u8 {
     let addr = operand.wrapping_add(offset);
     let ret_val = memory.read_mem_value(addr as u16);
     set_flags(ret_val, status_flag);
@@ -45,7 +45,7 @@ pub fn store_zero_page(pc_reg: &mut u16, to_store: u8, operand: u8, offset: u8, 
 }
 
 
-pub fn absolute_load(pc_reg: &mut u16, operand: u16, offset: u8, memory: &RAM, status_flag: &mut u8, cycles: &mut u8) -> u8 {
+pub fn absolute_load(pc_reg: &mut u16, operand: u16, offset: u8, memory: &mut RAM, status_flag: &mut u8, cycles: &mut u8) -> u8 {
     let addr = operand.wrapping_add(offset as u16);
     let ret_val = memory.read_mem_value(addr as u16);
     set_flags(ret_val, status_flag);
@@ -67,7 +67,7 @@ pub fn store_absolute(pc_reg: &mut u16, to_store: u8, operand: u16, offset: u8, 
     *cycles = 4;
 }
 
-pub fn indirect_x_load(pc_reg: &mut u16, operand: u8, x_val: u8, memory: &RAM, status_flag: &mut u8, cycles: &mut u8) -> u8 {
+pub fn indirect_x_load(pc_reg: &mut u16, operand: u8, x_val: u8, memory: &mut RAM, status_flag: &mut u8, cycles: &mut u8) -> u8 {
     let addr = operand.wrapping_add(x_val);
     let table_addr = memory.read_mem_address(addr as u16);
     let mem_value = memory.read_mem_value(table_addr); 
@@ -88,7 +88,7 @@ pub fn store_indirect_x(pc_reg: &mut u16, to_store: u8, operand: u8, offset: u8,
     *cycles = 6;
 }
 
-pub fn indirect_y_load(pc_reg: &mut u16, operand: u8, y_val: u8, memory: &RAM, status_flag: &mut u8, cycles: &mut u8) -> u8 {
+pub fn indirect_y_load(pc_reg: &mut u16, operand: u8, y_val: u8, memory: &mut RAM, status_flag: &mut u8, cycles: &mut u8) -> u8 {
     let table_addr = memory.read_mem_address(operand as u16);  
     let mem_value = memory.read_mem_value(table_addr.wrapping_add(y_val as u16)); 
     set_flags(mem_value, status_flag);

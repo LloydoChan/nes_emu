@@ -26,7 +26,7 @@ fn main() {
     let mut ppu : PPU = PPU::default();
     loop {
         cpu.run(&mut ram);
-        ppu.run(&ram);
+        ppu.run(&mut ram);
     }
 }
 

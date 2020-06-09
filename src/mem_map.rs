@@ -68,3 +68,5 @@ pub const NAME_TABLE_THREE_MIRROR_END: usize = 0x3EFF;
 
 pub const PALLETE_RAM_INDICES_START: usize = 0x3F00;
 pub const PALLETE_RAM_INDICES_END: usize = 0x3F1F;
+
+pub const OAM_DMA: usize = 0x4014;
