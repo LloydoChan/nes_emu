@@ -76,7 +76,7 @@ impl PPU {
         reg += 1;
         
         if mem.was_written(7) {
-            let value = mem.read_mem_value(reg as u16);
+            let value = mem.read_ppu_data_no_incr();
             // write value to mem address stored in ppu addr
             let addr = self.PPUADDR.address as usize;
             mem.write_vram_value(addr, value);
@@ -86,7 +86,7 @@ impl PPU {
         if mem.was_read(7) {
             let addr = self.PPUADDR.address as u16;
             let value = mem.read_mem_value(addr);
-            mem.write_mem_value(0x2007, value);
+            mem.write_ppu_data_no_incr(value);
             self.PPUADDR.address += self.PPUCTRL.VRAM_address_increment;
             // TODO potential problem with internal read buffer?
         }
@@ -130,7 +130,8 @@ impl PPU {
     }
 
     pub fn updatePpuScroll(&mut self, byte_val : u8){
-        // two writes to this write the address any writes to updatePpuAddr will write to
+        // two writes to this write the address that will be read when checking the nametable to render
+        // starting in top left of screen
         if self.PPUSCROLL.write_byte == 0 {
             self.PPUSCROLL.horiz_offset = byte_val;
         } else {
@@ -159,7 +160,6 @@ impl PPU {
     }
 }
 
-#[derive(Default)]
 struct ppuCtrl {
     nametableAddress : usize,
     VRAM_address_increment : usize,
@@ -167,6 +167,19 @@ struct ppuCtrl {
     bg_pattern_table_addr : usize,
     sprite_size : usize,
     gen_nmi : usize
+}
+
+impl Default for ppuCtrl {
+    fn default() -> Self {
+        ppuCtrl {
+            nametableAddress : NAME_TABLE_ADDRS[0],
+            VRAM_address_increment : VRAM_INCRS[0],
+            sprite_pattern_table_addr : PAT_TABLE_ADDR[0],
+            bg_pattern_table_addr :  PAT_TABLE_ADDR[0],
+            sprite_size : 8 * 8,
+            gen_nmi : 0
+        }
+    }
 }
 
 #[derive(Default)]
@@ -214,6 +227,36 @@ pub mod Test{
 
         // let's test ppu address writes...
         test_memory.write_mem_value(PPUADDR as u16, 0x01);
+        ppu.run(&mut test_memory);
         test_memory.write_mem_value(PPUADDR as u16, 0x02);
+        ppu.run(&mut test_memory);
+
+        test_memory.write_mem_value(PPUDATA as u16, 255);
+        ppu.run(&mut test_memory);
+        let test_val = test_memory.read_vram_value(0x0102);
+        ppu.run(&mut test_memory);
+        assert_eq!(test_val, 255);
+
+        test_memory.write_mem_value(PPUDATA as u16, 255);
+        ppu.run(&mut test_memory);
+        let test_val = test_memory.read_vram_value(0x0103);
+        ppu.run(&mut test_memory);
+        assert_eq!(test_val, 255);
+
+        // test the y increment mode
+        let status = 0b00000100;
+        test_memory.write_mem_value(PPUCTRL as u16, status);
+        ppu.run(&mut test_memory);
+
+        test_memory.write_mem_value(PPUDATA as u16, 255);
+        ppu.run(&mut test_memory);
+        let test_val = test_memory.read_vram_value(0x0104);
+        ppu.run(&mut test_memory);
+        assert_eq!(test_val, 255);
+        test_memory.write_mem_value(PPUDATA as u16, 255);
+        ppu.run(&mut test_memory);
+        let test_val = test_memory.read_vram_value(0x0124);
+        
+        assert_eq!(test_val, 255);
     }
 }

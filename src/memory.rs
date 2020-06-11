@@ -166,6 +166,14 @@ impl RAM {
         }
     }
 
+    pub fn write_ppu_data_no_incr(&mut self, value : u8){
+        self.ppu_regs[PPUDATA - 0x2000] = value
+    }
+
+    pub fn read_ppu_data_no_incr(&mut self) -> u8{
+        self.ppu_regs[PPUDATA - 0x2000]
+    }
+
     pub fn write_vram_value(&mut self, address: usize, value : u8) {
         self.check_vram_write(address, value)
     }
