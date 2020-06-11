@@ -130,7 +130,7 @@ mod tests{
             test_memory.write_mem_value(i, i  as u8);
         }
 
-        accumulator = load_zero_page(&mut pc_reg, 5, &test_memory, &mut status, &mut cycles);
+        accumulator = load_zero_page(&mut pc_reg, 5, &mut test_memory, &mut status, &mut cycles);
         assert_eq!(accumulator, 2);
     }
 }

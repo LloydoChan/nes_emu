@@ -130,7 +130,12 @@ impl RAM {
                 self.ppu_regs[indx] = value;
             },
             OAM_DMA => {
-
+                // writing a byte to this causes a 256 byte page to be copied to the OAM mem
+                // TODO cycles on cpu?
+                let page_addr = ((value as u16) << 8) as usize;
+                for i in 0..256 {
+                    self.OAM[i] = self.ram[page_addr + i];
+                } 
             }
 
             _=> {panic!("{:#x}", address);}

@@ -200,3 +200,20 @@ struct ppuAddr {
     address : usize,
     write_byte : u8
 }
+
+#[cfg(test)]
+pub mod Test{
+
+    use super::*;
+    use crate::memory::RAM;
+
+    #[test]
+    pub fn ppu_tests() {
+        let mut test_memory : RAM = RAM::new();
+        let mut ppu : PPU = PPU::default();
+
+        // let's test ppu address writes...
+        test_memory.write_mem_value(PPUADDR as u16, 0x01);
+        test_memory.write_mem_value(PPUADDR as u16, 0x02);
+    }
+}

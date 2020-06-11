@@ -205,7 +205,7 @@ mod tests{
         status = 0;
 
         pc_reg = 0;
-        push_acc_status_on_stack(&mut pc_reg, 128, &mut stack, &mut test_memory, &mut cycles);
+        push_status_on_stack(&mut pc_reg, 128, &mut stack, &mut test_memory, &mut cycles);
         assert_eq!(stack, 4);
         assert_eq!(pc_reg, 1);
 
@@ -213,7 +213,7 @@ mod tests{
         assert_eq!(stack, 3);
         assert_eq!(accumulator, 128);
 
-        push_acc_status_on_stack(&mut pc_reg, 0, &mut stack, &mut test_memory, &mut cycles);
+        push_status_on_stack(&mut pc_reg, 0, &mut stack, &mut test_memory, &mut cycles);
         pull_acc_from_stack(&mut pc_reg, &mut accumulator, &mut status, &mut stack, &mut test_memory, &mut cycles);
         assert_eq!(status, 2);
 

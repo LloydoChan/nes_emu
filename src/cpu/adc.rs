@@ -50,7 +50,7 @@ pub fn adc_indirect_indexed(operand : u8, y_val : u8, pc_reg : &mut u16, accumul
 mod tests {
     use super::*;
     use crate::memory;
-    use crate::flags;
+    use crate::cpu::flags;
 
     #[test]
     fn adc_tests() {
@@ -85,13 +85,13 @@ mod tests {
         accumulator = 0;
         status = 0;
 
-        adc_zero_page(12, &mut pc_reg, &mut accumulator,  &mut status, &test_memory, &mut cycles);
+        adc_zero_page(12, &mut pc_reg, &mut accumulator,  &mut status, &mut test_memory, &mut cycles);
 
         assert_eq!(pc_reg, 6);
         assert_eq!(accumulator, 24);
         assert_eq!(status, 0);
 
-        adc_zero_page(120, &mut pc_reg, &mut accumulator,  &mut status, &test_memory, &mut cycles);
+        adc_zero_page(120, &mut pc_reg, &mut accumulator,  &mut status, &mut test_memory, &mut cycles);
 
         assert_eq!(pc_reg, 8);
         assert_eq!(accumulator, 8);
@@ -100,7 +100,7 @@ mod tests {
         accumulator = 0;
         status = 0;
 
-        adc_zero_page(0, &mut pc_reg, &mut accumulator,  &mut status, &test_memory, &mut cycles);
+        adc_zero_page(0, &mut pc_reg, &mut accumulator,  &mut status, &mut test_memory, &mut cycles);
 
         assert_eq!(pc_reg, 10);
         assert_eq!(accumulator, 0);
@@ -109,28 +109,28 @@ mod tests {
         accumulator = 0;
         status = 0;
 
-        adc_zero_page_x(255, 2, &mut pc_reg, &mut accumulator, &mut status, &test_memory, &mut cycles);
+        adc_zero_page_x(255, 2, &mut pc_reg, &mut accumulator, &mut status, &mut test_memory, &mut cycles);
 
         assert_eq!(pc_reg, 12);
         assert_eq!(accumulator, 2);
 
-        adc_absolute(257, &mut pc_reg, &mut accumulator, &mut status, &test_memory, &mut cycles);
+        adc_absolute(257, &mut pc_reg, &mut accumulator, &mut status, &mut test_memory, &mut cycles);
 
         assert_eq!(pc_reg, 15);
         assert_eq!(accumulator, 4);
 
-        adc_absolute_reg(257, 2, &mut pc_reg, &mut accumulator, &mut status, &test_memory, &mut cycles);
+        adc_absolute_reg(257, 2, &mut pc_reg, &mut accumulator, &mut status, &mut test_memory, &mut cycles);
 
         assert_eq!(pc_reg, 18);
         assert_eq!(accumulator, 10);
         accumulator = 0;
-        adc_indexed_indirect(127, 3, &mut pc_reg, &mut accumulator, &mut status, &test_memory, &mut cycles);
+        adc_indexed_indirect(127, 3, &mut pc_reg, &mut accumulator, &mut status, &mut test_memory, &mut cycles);
 
         assert_eq!(pc_reg, 20);
         assert_eq!(accumulator, 8);
 
         accumulator = 0;
-        adc_indirect_indexed(1, 3, &mut pc_reg, &mut accumulator, &mut status, &test_memory, &mut cycles);
+        adc_indirect_indexed(1, 3, &mut pc_reg, &mut accumulator, &mut status, &mut test_memory, &mut cycles);
 
         assert_eq!(pc_reg, 22);
         assert_eq!(accumulator, 10);

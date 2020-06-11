@@ -18,6 +18,15 @@ pub const INTERNAL_RAM_MIRROR_THREE_END   : usize = 0x1FFF;
 pub const PPU_REGISTERS_START : usize = 0x2000;
 pub const PPU_REGISTERS_END : usize = 0x2007;
 
+pub const PPUCTRL : usize = 0x2000;
+pub const PPUMASK : usize = 0x2001;
+pub const PPUSTATUS : usize = 0x2002;
+pub const OAMADDR : usize = 0x2003;
+pub const OAMDATA : usize = 0x2004;
+pub const PPUSCROLL : usize = 0x2005;
+pub const PPUADDR : usize = 0x2006;
+pub const PPUDATA : usize = 0x2007;
+
 pub const PPU_REGISTERS_MIRRORS_START : usize = 0x2008;
 pub const PPU_REGISTERS_MIRRORS_END : usize = 0x3FFF;
 

@@ -71,7 +71,7 @@ mod tests{
 
         let indirect_addr = swap_bytes(test_memory.read_mem_address(0x07));
 
-        jump_indirect(&mut pc_reg, 0x07, &test_memory, &mut cycles);
+        jump_indirect(&mut pc_reg, 0x07, &mut test_memory, &mut cycles);
 
         assert_eq!(pc_reg, indirect_addr);
 

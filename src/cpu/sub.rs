@@ -48,7 +48,7 @@ pub fn sbc_indirect_indexed(operand : u8, y_val : u8, pc_reg : &mut u16, accumul
 mod tests{
     use super::*;
     use crate::memory;
-    use crate::flags;
+    use crate::cpu::flags;
 
     #[test]
     fn sub_tests() {

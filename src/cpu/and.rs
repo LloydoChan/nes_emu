@@ -91,26 +91,26 @@ mod tests{
         assert_eq!(status, 0);
 
         status = 0;
-        and_absolute(3, &mut pc_reg, &mut accumulator, &mut status, &test_memory, &mut cycles);
+        and_absolute(3, &mut pc_reg, &mut accumulator, &mut status, &mut test_memory, &mut cycles);
 
         assert_eq!(pc_reg, 11);
         assert_eq!(status, 2);
 
         status = 0;
         accumulator = 129;
-        and_absolute_reg(255, 2, &mut pc_reg, &mut accumulator, &mut status, &test_memory, &mut cycles);
+        and_absolute_reg(255, 2, &mut pc_reg, &mut accumulator, &mut status, &mut test_memory, &mut cycles);
 
         assert_eq!(pc_reg, 14);
         assert_eq!(status, 64);
 
         status = 0;
         accumulator = 1;
-        and_indexed_indirect(1, 6, &mut pc_reg, &mut accumulator, &mut status, &test_memory, &mut cycles);
+        and_indexed_indirect(1, 6, &mut pc_reg, &mut accumulator, &mut status, &mut test_memory, &mut cycles);
 
         assert_eq!(pc_reg, 16);
         assert_eq!(status, 0);
 
-        and_indirect_indexed(1, 3, &mut pc_reg, &mut accumulator, &mut status, &test_memory, &mut cycles);
+        and_indirect_indexed(1, 3, &mut pc_reg, &mut accumulator, &mut status, &mut test_memory, &mut cycles);
 
         assert_eq!(pc_reg, 18);
     }   
