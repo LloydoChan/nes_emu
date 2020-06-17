@@ -58,7 +58,7 @@ impl Nes6502 {
     }
 
     fn decode_instruction(&mut self, opcode : u8, ram : &mut RAM){
-        println!("{:#x} {:#04x} A:{:#04x} X:{:#04x} Y:{:#04x} P:{:#04x} SP:{:#04x} cycles:{}", self.pc_counter, opcode, self.accumulator, self.x, self.y, self.status_flags, self.stack_pointer, self.total_cycles);
+        //println!("{:#x} {:#04x} A:{:#04x} X:{:#04x} Y:{:#04x} P:{:#04x} SP:{:#04x} cycles:{}", self.pc_counter, opcode, self.accumulator, self.x, self.y, self.status_flags, self.stack_pointer, self.total_cycles);
         match opcode{
             // -------------------------------------------------------------------
             // add with carry start ---------------------------------------------- 
@@ -669,7 +669,7 @@ impl Nes6502 {
             },
             0x68 => {
                 misc_instructions::pull_acc_from_stack(&mut self.pc_counter, &mut self.accumulator, &mut self.status_flags, &mut self.stack_pointer, ram, &mut self.cycles_until_next);
-                println!("{:#b} {:#b}", self.accumulator, self.status_flags);
+                //println!("{:#b} {:#b}", self.accumulator, self.status_flags);
             },
             0x28 => {
                 misc_instructions::pull_status_from_stack(&mut self.pc_counter, &mut self.status_flags, &mut self.stack_pointer, ram, &mut self.cycles_until_next);

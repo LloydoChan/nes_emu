@@ -7,6 +7,7 @@ const VRAM_SIZE : usize = 2 * 1024;
 const ROM_SIZE : usize = 32 * 1024;
 const CHR_SIZE : usize = 4 * 1024;
 
+
 pub struct RAM{
     ram : [u8; RAM_SIZE],
     rom : [u8; ROM_SIZE],
@@ -15,7 +16,9 @@ pub struct RAM{
     ppu_regs : [u8; 8],
     ppu_reg_write : [u8; 8],
     ppu_reg_read  : [u8; 8], 
-    OAM     : [u8; 256]
+    OAM     : [u8; 256],
+    universal_bg_color : u8,
+    pallette_colors : [u8; 24],
 }
 
 
@@ -30,7 +33,9 @@ impl RAM {
             ppu_regs : [0; 8],
             ppu_reg_write : [0; 8],
             ppu_reg_read  : [0; 8], 
-            OAM : [0; 256]
+            OAM : [0; 256],
+            universal_bg_color : 0,
+            pallette_colors: [0; 24],
         }
     }
 

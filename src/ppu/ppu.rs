@@ -176,7 +176,7 @@ impl Default for ppuCtrl {
             VRAM_address_increment : VRAM_INCRS[0],
             sprite_pattern_table_addr : PAT_TABLE_ADDR[0],
             bg_pattern_table_addr :  PAT_TABLE_ADDR[0],
-            sprite_size : 8 * 8,
+            sprite_size : 0,
             gen_nmi : 0
         }
     }
