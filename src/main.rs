@@ -36,8 +36,8 @@ use nes_emu::cpu::nes_6502::Nes6502;
 use nes_emu::ppu::ppu::PPU;
 use nes_emu::memory::RAM;
 
-const WIDTH : u32 = 64;
-const HEIGHT: u32 = 32;
+const WIDTH : u32 = 256;
+const HEIGHT: u32 = 240;
 
 const SECONDS_PER_CLOCK : f32 = 1.0 / 1_790_000.0; // 1.79 MHz freq
 const NANOS_PER_CLOCK: u128 = (SECONDS_PER_CLOCK * 1_000_000_000_000.0) as u128;
@@ -119,7 +119,7 @@ fn load_binary<P: AsRef<Path>>(path : P) -> Box<[u8]> {
 
 fn init_window(context : &mut Sdl, width : u32, height : u32) -> Result<Window, WindowBuildError> {
     let video_subsystem = context.video().unwrap();
-    let window = video_subsystem.window("nes demo", width * 8, height * 8)
+    let window = video_subsystem.window("nes demo", width * 2, height * 2)
         .position_centered()
         .build();
 
