@@ -5,6 +5,9 @@ const NAME_TABLE_ADDRS: [usize; 4] = [0x2000, 0x2400, 0x2800, 0x2C00];
 const VRAM_INCRS: [usize; 2] = [1, 32];
 const PAT_TABLE_ADDR: [usize; 2] = [0, 0x1000];
 
+const WIDTH: u32 = 256;
+const HEIGHT: u32 = 240;
+
 #[derive(Default)]
 pub struct PPU {
     PPUCTRL: ppuCtrl,
@@ -14,6 +17,9 @@ pub struct PPU {
     OAMDATA: u8,
     PPUSCROLL: ppuScroll,
     PPUADDR: ppuAddr,
+
+    // memory that will represent "composited" image, and will be used for output by system
+    output : output_image
 }
 
 fn get_bit(byte: u8, index: u8) -> u8 {
@@ -156,6 +162,18 @@ impl PPU {
     pub fn updateOAMData(&mut self, byte_val: u8) {
         todo!();
     }
+
+    pub fn draw_bg(&mut self) {
+        todo!();
+    }
+
+    pub fn draw_fg(&mut self) {
+        todo!();
+    }
+
+    pub fn get_output_image(&self) -> &[(u8,u8,u8)] {
+        &self.output.mem
+    }
 }
 
 struct ppuCtrl {
@@ -210,6 +228,18 @@ struct ppuScroll {
 struct ppuAddr {
     address: usize,
     write_byte: u8,
+}
+
+struct output_image {
+    mem : [(u8, u8, u8); (WIDTH * HEIGHT) as usize]
+}
+
+impl Default for output_image {
+    fn default() -> Self {
+        output_image{
+            mem : [(0, 0, 0); (WIDTH * HEIGHT) as usize]
+        }
+    }
 }
 
 #[cfg(test)]
