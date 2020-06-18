@@ -1,52 +1,49 @@
-// memory access - uses values in mem_map to check what address being passed actually is before 
+// memory access - uses values in mem_map to check what address being passed actually is before
 // returning value
 use crate::mem_map::*;
 
-const RAM_SIZE : usize = 2 * 1024;
-const VRAM_SIZE : usize = 2 * 1024;
-const ROM_SIZE : usize = 32 * 1024;
-const CHR_SIZE : usize = 4 * 1024;
+const RAM_SIZE: usize = 2 * 1024;
+const VRAM_SIZE: usize = 2 * 1024;
+const ROM_SIZE: usize = 32 * 1024;
+const CHR_SIZE: usize = 4 * 1024;
 
-
-pub struct RAM{
-    ram : [u8; RAM_SIZE],
-    rom : [u8; ROM_SIZE],
-    ppu_ram : [u8; VRAM_SIZE],
-    chr_ram : [u8; CHR_SIZE],
-    ppu_regs : [u8; 8],
-    ppu_reg_write : [u8; 8],
-    ppu_reg_read  : [u8; 8], 
-    OAM     : [u8; 256],
-    universal_bg_color : u8,
-    pallette_colors : [u8; 24],
+pub struct RAM {
+    ram: [u8; RAM_SIZE],
+    rom: [u8; ROM_SIZE],
+    ppu_ram: [u8; VRAM_SIZE],
+    chr_ram: [u8; CHR_SIZE],
+    ppu_regs: [u8; 8],
+    ppu_reg_write: [u8; 8],
+    ppu_reg_read: [u8; 8],
+    OAM: [u8; 256],
+    universal_bg_color: u8,
+    pallette_colors: [u8; 24],
 }
 
-
 impl RAM {
-
-    pub fn new() -> RAM{
-        RAM{
-            ram : [0; RAM_SIZE],
-            rom : [0; ROM_SIZE],
-            ppu_ram : [0; VRAM_SIZE],
-            chr_ram : [0; CHR_SIZE],
-            ppu_regs : [0; 8],
-            ppu_reg_write : [0; 8],
-            ppu_reg_read  : [0; 8], 
-            OAM : [0; 256],
-            universal_bg_color : 0,
+    pub fn new() -> RAM {
+        RAM {
+            ram: [0; RAM_SIZE],
+            rom: [0; ROM_SIZE],
+            ppu_ram: [0; VRAM_SIZE],
+            chr_ram: [0; CHR_SIZE],
+            ppu_regs: [0; 8],
+            ppu_reg_write: [0; 8],
+            ppu_reg_read: [0; 8],
+            OAM: [0; 256],
+            universal_bg_color: 0,
             pallette_colors: [0; 24],
         }
     }
 
     pub fn clear_read_write_regs(&mut self) {
         self.ppu_reg_write = [0, 0, 0, 0, 0, 0, 0, 0];
-        self.ppu_reg_read  = [0, 0, 0, 0, 0, 0, 0, 0];
+        self.ppu_reg_read = [0, 0, 0, 0, 0, 0, 0, 0];
     }
 
-    pub fn load_rom(&mut self, rom_data : Box<[u8]>) {
+    pub fn load_rom(&mut self, rom_data: Box<[u8]>) {
         for (i, elem) in rom_data.iter().enumerate() {
-            self.rom[i] = *elem; 
+            self.rom[i] = *elem;
         }
     }
 
@@ -57,34 +54,33 @@ impl RAM {
     pub fn read_mem_address(&mut self, addr: u16) -> u16 {
         let byte_one = self.check_address_read(addr as usize);
         let byte_two = self.check_address_read((addr + 1) as usize);
-        ((byte_two as u16) << 8) |
-        (byte_one as u16)
+        ((byte_two as u16) << 8) | (byte_one as u16)
     }
 
-    pub fn write_mem_value(&mut self, addr: u16, value : u8){
+    pub fn write_mem_value(&mut self, addr: u16, value: u8) {
         self.check_address_write(addr as usize, value);
     }
 
-    pub fn write_mem_address(&mut self, addr: u16, new_addr : u16){
+    pub fn write_mem_address(&mut self, addr: u16, new_addr: u16) {
         let byte_one = (new_addr) as u8;
         let byte_two = (new_addr >> 8) as u8;
         self.check_address_write(addr as usize, byte_one);
         self.check_address_write((addr + 1) as usize, byte_two);
     }
 
-    pub fn push_address_on_stack(&mut self, stack_ptr : &mut u8, push_address : u16){
+    pub fn push_address_on_stack(&mut self, stack_ptr: &mut u8, push_address: u16) {
         if *stack_ptr == 254 {
             panic!("stack overflow")
         }
-        
+
         let addr = STACK_START + *stack_ptr as usize;
-        self.ram[addr - 1] = push_address  as u8;
-        self.ram[addr] = (push_address >> 8) as u8; 
+        self.ram[addr - 1] = push_address as u8;
+        self.ram[addr] = (push_address >> 8) as u8;
         //println!("push addr on stack {:#x}, {:#x}, {:#x}", push_address, self.ram[addr], self.ram[addr - 1] );
         *stack_ptr -= 2;
     }
 
-    pub fn push_value_on_stack(&mut self, stack_ptr : &mut u8, push_value : u8){
+    pub fn push_value_on_stack(&mut self, stack_ptr: &mut u8, push_value: u8) {
         if *stack_ptr == 255 {
             panic!("stack overflow")
         }
@@ -94,92 +90,95 @@ impl RAM {
         *stack_ptr -= 1;
     }
 
-    pub fn pop_address_off_stack(&mut self, stack_ptr : &mut u8) -> u16{
+    pub fn pop_address_off_stack(&mut self, stack_ptr: &mut u8) -> u16 {
         if *stack_ptr == 0 {
             panic!("stack underflow")
         }
 
         *stack_ptr += 2;
         let addr = STACK_START + *stack_ptr as usize;
-        let pop_addr = (self.ram[addr] as u16) << 8 | 
-                       self.ram[addr-1] as u16; 
-        
+        let pop_addr = (self.ram[addr] as u16) << 8 | self.ram[addr - 1] as u16;
+
         pop_addr
     }
 
-    pub fn pop_value_off_stack(&mut self, stack_ptr : &mut u8) -> u8{
+    pub fn pop_value_off_stack(&mut self, stack_ptr: &mut u8) -> u8 {
         *stack_ptr += 1;
-        let value = self.ram[STACK_START + *stack_ptr as usize]; 
+        let value = self.ram[STACK_START + *stack_ptr as usize];
         value
     }
 
     // maps addresses to other addresses
     fn check_address_write(&mut self, address: usize, value: u8) {
-        match address{
-            INTERNAL_RAM_START..=INTERNAL_RAM_MIRROR_THREE_END =>{
+        match address {
+            INTERNAL_RAM_START..=INTERNAL_RAM_MIRROR_THREE_END => {
                 let lookup = address & 0x7FF;
                 self.ram[lookup] = value;
-            },
+            }
             MIRROR_ONE_ROM_START..=MIRROR_ONE_ROM_END => {
                 let base = address - 0x8000;
                 self.rom[base] = value;
-            },
+            }
             MIRROR_TWO_ROM_START..=MIRROR_TWO_ROM_END => {
                 let base = address - 0xC000;
                 self.rom[base] = value;
-            },
+            }
             PPU_REGISTERS_START..=PPU_REGISTERS_MIRRORS_END => {
                 let base = address - 0x2000;
                 let indx = base % 8;
                 self.ppu_reg_write[indx] = 1;
                 self.ppu_regs[indx] = value;
-            },
+            }
             OAM_DMA => {
                 // writing a byte to this causes a 256 byte page to be copied to the OAM mem
                 // TODO cycles on cpu?
                 let page_addr = ((value as u16) << 8) as usize;
                 for i in 0..256 {
                     self.OAM[i] = self.ram[page_addr + i];
-                } 
+                }
             }
 
-            _=> {panic!("{:#x}", address);}
+            _ => {
+                panic!("{:#x}", address);
+            }
         }
     }
 
     fn check_address_read(&mut self, address: usize) -> u8 {
-        match address{
-            INTERNAL_RAM_START..=INTERNAL_RAM_MIRROR_THREE_END =>{
+        match address {
+            INTERNAL_RAM_START..=INTERNAL_RAM_MIRROR_THREE_END => {
                 let lookup = address & 0x7FF;
                 self.ram[lookup]
-            },
+            }
             MIRROR_ONE_ROM_START..=MIRROR_ONE_ROM_END => {
                 let base = address - 0x8000;
                 self.rom[base]
-            },
+            }
             MIRROR_TWO_ROM_START..=MIRROR_TWO_ROM_END => {
                 let base = address - 0xBFF0;
                 self.rom[base]
-            },
+            }
             PPU_REGISTERS_START..=PPU_REGISTERS_MIRRORS_END => {
                 let base = address - 0x2000;
                 let indx = base % 8;
                 self.ppu_reg_read[indx] = 1;
                 self.ppu_regs[indx]
             }
-            _=> {panic!("{:#x}", address);}
+            _ => {
+                panic!("{:#x}", address);
+            }
         }
     }
 
-    pub fn write_ppu_data_no_incr(&mut self, value : u8){
+    pub fn write_ppu_data_no_incr(&mut self, value: u8) {
         self.ppu_regs[PPUDATA - 0x2000] = value
     }
 
-    pub fn read_ppu_data_no_incr(&mut self) -> u8{
+    pub fn read_ppu_data_no_incr(&mut self) -> u8 {
         self.ppu_regs[PPUDATA - 0x2000]
     }
 
-    pub fn write_vram_value(&mut self, address: usize, value : u8) {
+    pub fn write_vram_value(&mut self, address: usize, value: u8) {
         self.check_vram_write(address, value)
     }
 
@@ -189,73 +188,51 @@ impl RAM {
 
     // maps vram addresses to other addresses
     fn check_vram_address_read(&self, address: usize) -> u8 {
-        match address{
-            PATTERN_TABLE_ZERO_START..=PATTERN_TABLE_ZERO_END =>{
-                self.ppu_ram[address]
-            },
-            PATTERN_TABLE_ONE_START..=PATTERN_TABLE_ONE_END =>{
-                self.ppu_ram[address]
-            },
-            NAME_TABLE_ZERO_START..=NAME_TABLE_ZERO_END =>{
-                self.ppu_ram[address]
-            },
-            NAME_TABLE_ONE_START..=NAME_TABLE_ONE_END =>{
-                self.ppu_ram[address]
-            },
-            NAME_TABLE_TWO_START..=NAME_TABLE_TWO_END =>{
-                self.ppu_ram[address]
-            },
-            NAME_TABLE_THREE_START..=NAME_TABLE_THREE_END =>{
-                self.ppu_ram[address]
-            },
-            _=> {panic!("{:#x}", address);}
-        }
-    }
-   
-    fn check_vram_write(&mut self, address: usize, value : u8) {
-        match address{
-            PATTERN_TABLE_ZERO_START..=PATTERN_TABLE_ZERO_END =>{
-                self.ppu_ram[address] = value
-            },
-            PATTERN_TABLE_ONE_START..=PATTERN_TABLE_ONE_END =>{
-                self.ppu_ram[address] = value
-            },
-            NAME_TABLE_ZERO_START..=NAME_TABLE_ZERO_END =>{
-                self.ppu_ram[address] = value
-            },
-            NAME_TABLE_ONE_START..=NAME_TABLE_ONE_END =>{
-                self.ppu_ram[address] = value
-            },
-            NAME_TABLE_TWO_START..=NAME_TABLE_TWO_END =>{
-                self.ppu_ram[address] = value
-            },
-            NAME_TABLE_THREE_START..=NAME_TABLE_THREE_END =>{
-                self.ppu_ram[address] = value
-            },
-            _=> {panic!("{:#x}", address);}
+        match address {
+            PATTERN_TABLE_ZERO_START..=PATTERN_TABLE_ZERO_END => self.ppu_ram[address],
+            PATTERN_TABLE_ONE_START..=PATTERN_TABLE_ONE_END => self.ppu_ram[address],
+            NAME_TABLE_ZERO_START..=NAME_TABLE_ZERO_END => self.ppu_ram[address],
+            NAME_TABLE_ONE_START..=NAME_TABLE_ONE_END => self.ppu_ram[address],
+            NAME_TABLE_TWO_START..=NAME_TABLE_TWO_END => self.ppu_ram[address],
+            NAME_TABLE_THREE_START..=NAME_TABLE_THREE_END => self.ppu_ram[address],
+            _ => {
+                panic!("{:#x}", address);
+            }
         }
     }
 
-    pub fn was_read(&self, idx : usize) -> bool {
+    fn check_vram_write(&mut self, address: usize, value: u8) {
+        match address {
+            PATTERN_TABLE_ZERO_START..=PATTERN_TABLE_ZERO_END => self.ppu_ram[address] = value,
+            PATTERN_TABLE_ONE_START..=PATTERN_TABLE_ONE_END => self.ppu_ram[address] = value,
+            NAME_TABLE_ZERO_START..=NAME_TABLE_ZERO_END => self.ppu_ram[address] = value,
+            NAME_TABLE_ONE_START..=NAME_TABLE_ONE_END => self.ppu_ram[address] = value,
+            NAME_TABLE_TWO_START..=NAME_TABLE_TWO_END => self.ppu_ram[address] = value,
+            NAME_TABLE_THREE_START..=NAME_TABLE_THREE_END => self.ppu_ram[address] = value,
+            _ => {
+                panic!("{:#x}", address);
+            }
+        }
+    }
+
+    pub fn was_read(&self, idx: usize) -> bool {
         self.ppu_reg_read[idx] == 1
     }
-   
-    pub fn was_written(&self, idx : usize) -> bool {
+
+    pub fn was_written(&self, idx: usize) -> bool {
         self.ppu_reg_write[idx] == 1
     }
 }
 
-
-
-pub fn swap_bytes(in_val : u16) -> u16 {
-    let out_val = ( in_val << 8 ) | (in_val >> 8);
+pub fn swap_bytes(in_val: u16) -> u16 {
+    let out_val = (in_val << 8) | (in_val >> 8);
     out_val
 }
 
 #[cfg(test)]
-mod tests{
+mod tests {
     #[test]
-    fn mem_tests(){
+    fn mem_tests() {
         use super::*;
 
         // let mut test_memory  : RAM = RAM::new();
