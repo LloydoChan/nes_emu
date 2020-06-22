@@ -4,35 +4,39 @@ use crate::mem_map::*;
 
 const RAM_SIZE: usize = 2 * 1024;
 const VRAM_SIZE: usize = 2 * 1024;
-const ROM_SIZE: usize = 32 * 1024;
-const CHR_SIZE: usize = 4 * 1024;
+const ROM_BLOCK_SIZE: usize = 16 * 1024;
+const CHR_BLOCK_SIZE: usize = 8 * 1024;
 
 pub struct RAM {
     ram: [u8; RAM_SIZE],
-    rom: [u8; ROM_SIZE],
+    rom: Box<[u8]>,
     ppu_ram: [u8; VRAM_SIZE],
-    chr_ram: [u8; CHR_SIZE],
+    chr_ram: Box<[u8]>,
     ppu_regs: [u8; 8],
     ppu_reg_write: [u8; 8],
     ppu_reg_read: [u8; 8],
     OAM: [u8; 256],
     universal_bg_color: u8,
     pallette_colors: [u8; 24],
+    num_prg_blocks : usize,
+    num_chr_blocks : usize
 }
 
 impl RAM {
-    pub fn new() -> RAM {
+    pub fn new(num_prg_blocks : usize, num_chr_blocks : usize) -> RAM {
         RAM {
             ram: [0; RAM_SIZE],
-            rom: [0; ROM_SIZE],
+            rom: vec![0; ROM_BLOCK_SIZE * num_prg_blocks].into_boxed_slice(),
             ppu_ram: [0; VRAM_SIZE],
-            chr_ram: [0; CHR_SIZE],
+            chr_ram: vec![0; CHR_BLOCK_SIZE * num_chr_blocks].into_boxed_slice(),
             ppu_regs: [0; 8],
             ppu_reg_write: [0; 8],
             ppu_reg_read: [0; 8],
             OAM: [0; 256],
             universal_bg_color: 0,
             pallette_colors: [0; 24],
+            num_prg_blocks : num_prg_blocks,
+            num_chr_blocks : num_chr_blocks
         }
     }
 
@@ -42,8 +46,15 @@ impl RAM {
     }
 
     pub fn load_rom(&mut self, rom_data: Box<[u8]>) {
-        for (i, elem) in rom_data.iter().enumerate() {
-            self.rom[i] = *elem;
+
+        let prg_len = self.num_prg_blocks * ROM_BLOCK_SIZE;
+        for i in 0..prg_len {
+            self.rom[i] = rom_data[i + 16];
+        }
+
+        let chr_len = self.num_chr_blocks * CHR_BLOCK_SIZE;
+        for i in 0..chr_len {
+            self.chr_ram[i] = rom_data[prg_len + i + 16];
         }
     }
 
@@ -152,10 +163,12 @@ impl RAM {
             }
             MIRROR_ONE_ROM_START..=MIRROR_ONE_ROM_END => {
                 let base = address - 0x8000;
-                self.rom[base]
+                let value = self.rom[base];
+                println!("{:#x} {:#x}", base, value);
+                value
             }
             MIRROR_TWO_ROM_START..=MIRROR_TWO_ROM_END => {
-                let base = address - 0xBFF0;
+                let base = address - 0xC000;
                 self.rom[base]
             }
             PPU_REGISTERS_START..=PPU_REGISTERS_MIRRORS_END => {

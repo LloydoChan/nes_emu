@@ -51,9 +51,13 @@ fn main() {
     let rom_path = &args[1];
 
     let rom_data = load_binary(rom_path);
-    let mut ram: RAM = RAM::new();
+    // parse header info
+    let (prg_blocks, chr_blocks, has_trainer) = parse_header(&rom_data);
+
+    let mut ram: RAM = RAM::new(prg_blocks as usize, chr_blocks as usize);
     ram.load_rom(rom_data);
 
+    
     // do SDL init stuff
     let mut sdl_context = sdl2::init().unwrap();
     let win = init_window(&mut sdl_context, WIDTH, HEIGHT);
@@ -129,3 +133,13 @@ fn init_window(context: &mut Sdl, width: u32, height: u32) -> Result<Window, Win
 }
 
 fn expand_vram() {}
+
+fn parse_header( mem : &Box<[u8]>) -> (u8, u8, bool) {
+
+    let num_prg_blocks = mem[4];
+    let num_chr_blocks = mem[5];
+    let copy_byte = mem[6];
+    let has_trainer : bool = ((copy_byte >> 3) & 0x1) != 0;
+
+    (num_prg_blocks, num_chr_blocks, has_trainer)
+}

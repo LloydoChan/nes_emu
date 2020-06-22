@@ -210,12 +210,13 @@ struct ppuMask {
     emphasize_blue: u8,
 }
 
-#[derive(Default)]
 struct ppuStatus {
     overflow: u8,
     sprite_hit: u8,
     vert_blank_started: u8,
 }
+
+impl Default for ppuStatus
 
 #[derive(Default)]
 struct ppuScroll {
