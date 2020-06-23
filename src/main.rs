@@ -77,6 +77,9 @@ fn main() {
         );
     }
 
+    // set ppu status
+    ram.write_mem_value(0x2002, 0b10100000);
+
     let mut cpu: Nes6502 = Nes6502::new();
     let mut ppu: PPU = PPU::default();
 

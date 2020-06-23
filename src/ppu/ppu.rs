@@ -19,7 +19,20 @@ pub struct PPU {
     PPUADDR: ppuAddr,
 
     // memory that will represent "composited" image, and will be used for output by system
-    output : output_image
+    output : output_image,
+    current_offset : u16,
+    current_cycle  : u16,
+    cycles_until_action : u8,
+
+    current_scan_line : u16,
+
+    // shift registers
+    tileOne : u16,
+    tileTwo : u16,
+
+    pal_attrib_one : u8,
+    pal_sttrib_two : u8,
+
 }
 
 fn get_bit(byte: u8, index: u8) -> u8 {
@@ -27,6 +40,7 @@ fn get_bit(byte: u8, index: u8) -> u8 {
 }
 
 impl PPU {
+
     pub fn run(&mut self, mem: &mut RAM) {
         // run?
         let mut reg = PPU_REGISTERS_START;
@@ -97,6 +111,54 @@ impl PPU {
         }
 
         mem.clear_read_write_regs();
+        self.do_scan_work();
+    }
+
+    fn do_scan_work(&mut self){
+        // 3 ppu cycles per normal cpu cycle
+
+        //let 0 be -1 or pre render scanline
+        match self.current_scan_line {
+            0 => {
+                // fetch for shift registers 
+            },
+            1..=240 => {
+                // different stages of "work"
+                match self.current_cycle {
+                    1..=256 => {
+                        todo!()
+                    },
+                    257..=320 => {
+                        // TODO - for sprites
+                    }
+                    321..=336 => {
+                        // TODO for sprites on next scanline
+                    },
+                    337..=340 => {
+                        // dummy fetches
+                    }
+                    _ => {
+                        panic!();
+                    }
+                }
+            },
+            241 => {
+                // post scanline
+            },
+            242..=261 => {
+                // vert blank
+            }
+            _=> {
+                panic!();
+            }
+        }
+
+        
+            self.current_cycle = (self.current_cycle + 1) % 340;
+            
+            if self.current_cycle == 0 {
+                self.current_scan_line = (self.current_scan_line + 1) % 261;
+            }
     }
 
     pub fn updatePpuCtrl(&mut self, byte_val: u8) {
@@ -210,13 +272,12 @@ struct ppuMask {
     emphasize_blue: u8,
 }
 
+#[derive(Default)]
 struct ppuStatus {
     overflow: u8,
     sprite_hit: u8,
     vert_blank_started: u8,
 }
-
-impl Default for ppuStatus
 
 #[derive(Default)]
 struct ppuScroll {

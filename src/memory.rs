@@ -17,7 +17,7 @@ pub struct RAM {
     ppu_reg_read: [u8; 8],
     OAM: [u8; 256],
     universal_bg_color: u8,
-    pallette_colors: [u8; 24],
+    pallette_colors: [u8; 32],
     num_prg_blocks : usize,
     num_chr_blocks : usize
 }
@@ -34,7 +34,7 @@ impl RAM {
             ppu_reg_read: [0; 8],
             OAM: [0; 256],
             universal_bg_color: 0,
-            pallette_colors: [0; 24],
+            pallette_colors: [0; 32],
             num_prg_blocks : num_prg_blocks,
             num_chr_blocks : num_chr_blocks
         }
@@ -208,6 +208,14 @@ impl RAM {
             NAME_TABLE_ONE_START..=NAME_TABLE_ONE_END => self.ppu_ram[address],
             NAME_TABLE_TWO_START..=NAME_TABLE_TWO_END => self.ppu_ram[address],
             NAME_TABLE_THREE_START..=NAME_TABLE_THREE_END => self.ppu_ram[address],
+            PALLETE_RAM_INDICES_START..=PALLETE_RAM_INDICES_END => {
+                let base = address - PALLETE_RAM_INDICES_START;
+                self.pallette_colors[base]
+            },
+            PALLETE_RAM_MIRRORS_START..=PALLETE_RAM_MIRRORS_END => {
+                let base = (address - PALLETE_RAM_MIRRORS_START) % 0x20;
+                self.pallette_colors[base]
+            },
             _ => {
                 panic!("{:#x}", address);
             }
@@ -222,6 +230,14 @@ impl RAM {
             NAME_TABLE_ONE_START..=NAME_TABLE_ONE_END => self.ppu_ram[address] = value,
             NAME_TABLE_TWO_START..=NAME_TABLE_TWO_END => self.ppu_ram[address] = value,
             NAME_TABLE_THREE_START..=NAME_TABLE_THREE_END => self.ppu_ram[address] = value,
+            PALLETE_RAM_INDICES_START..=PALLETE_RAM_INDICES_END => {
+                let base = address - PALLETE_RAM_INDICES_START;
+                self.pallette_colors[base] = value;
+            },
+            PALLETE_RAM_MIRRORS_START..=PALLETE_RAM_MIRRORS_END => {
+                let base = (address - PALLETE_RAM_MIRRORS_START) % 0x20;
+                self.pallette_colors[base] = value;
+            },
             _ => {
                 panic!("{:#x}", address);
             }

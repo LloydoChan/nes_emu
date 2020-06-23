@@ -49,11 +49,9 @@ impl Nes6502 {
             // get next opcode
             let opcode = ram.read_mem_value(self.pc_counter);
             self.decode_instruction(opcode, ram);
-
-            while self.cycles_until_next > 0 {
+        } else {
                 self.cycles_until_next -= 1;
                 self.total_cycles += 1;
-            }
         }
     }
 
