@@ -26,13 +26,18 @@ pub struct PPU {
 
     current_scan_line : u16,
 
-    // shift registers
-    tileOne : u16,
-    tileTwo : u16,
+    current_vram_address : u16,
+    temp_vram_address : u16,
+    fine_x_scroll : u8,
+    first_second_write_toggle : u8,
 
+    // shift register
+    tileOne : u8,
+    tileTwo : u8,
     pal_attrib_one : u8,
-    pal_sttrib_two : u8,
 
+    current_x : u16,
+    
 }
 
 fn get_bit(byte: u8, index: u8) -> u8 {
@@ -40,6 +45,7 @@ fn get_bit(byte: u8, index: u8) -> u8 {
 }
 
 impl PPU {
+
 
     pub fn run(&mut self, mem: &mut RAM) {
         // run?
@@ -111,22 +117,46 @@ impl PPU {
         }
 
         mem.clear_read_write_regs();
-        self.do_scan_work();
+        self.do_scan_work(mem);
     }
 
-    fn do_scan_work(&mut self){
+    fn do_scan_work(&mut self, mem: &mut RAM){
         // 3 ppu cycles per normal cpu cycle
-
+        let mut name_table_addr = 0;
+        //let mut attrib_table_addr = ;
         //let 0 be -1 or pre render scanline
         match self.current_scan_line {
             0 => {
-                // fetch for shift registers 
+                let name_table_addr = self.PPUCTRL.nametableAddress;
+                self.current_x = 0;
             },
             1..=240 => {
                 // different stages of "work"
                 match self.current_cycle {
                     1..=256 => {
-                        todo!()
+                        let pixel = ( self.current_cycle - 1 ) % 8;
+                        if pixel == 0 {
+                            // get the values needed!
+                            let index = mem.read_vram_value(name_table_addr);
+
+                            let offset = 16 * index as usize;
+                            self.tileOne = mem.read_vram_value(offset);
+                            self.tileTwo = mem.read_vram_value(offset + 8);
+
+                            // let's try black and white first?
+                            name_table_addr += 2;
+                        }
+
+                        let pixVal = (self.tileOne >> (7 - pixel)) | (self.tileTwo >> (7 - pixel));
+
+                        let current_pix = self.current_scan_line * HEIGHT as u16 + self.current_x as u16;
+                        self.current_x += 1;
+
+                        if(pixVal != 0){
+                            self.output.mem[current_pix as usize] = (255, 0, 0); 
+                        }else{
+                            self.output.mem[current_pix as usize] = (0, 0, 0); 
+                        }
                     },
                     257..=320 => {
                         // TODO - for sprites
@@ -138,12 +168,12 @@ impl PPU {
                         // dummy fetches
                     }
                     _ => {
-                        panic!();
+                        //panic!();
                     }
                 }
             },
             241 => {
-                // post scanline
+               // post scanline
             },
             242..=261 => {
                 // vert blank
@@ -154,11 +184,10 @@ impl PPU {
         }
 
         
-            self.current_cycle = (self.current_cycle + 1) % 340;
-            
-            if self.current_cycle == 0 {
-                self.current_scan_line = (self.current_scan_line + 1) % 261;
-            }
+        self.current_cycle = (self.current_cycle + 1) % 340;
+        if self.current_cycle == 0 {
+            self.current_scan_line = (self.current_scan_line + 1) % 261;
+        }
     }
 
     pub fn updatePpuCtrl(&mut self, byte_val: u8) {
@@ -292,8 +321,8 @@ struct ppuAddr {
     write_byte: u8,
 }
 
-struct output_image {
-    mem : [(u8, u8, u8); (WIDTH * HEIGHT) as usize]
+pub struct output_image {
+    pub mem : [(u8, u8, u8); (WIDTH * HEIGHT) as usize]
 }
 
 impl Default for output_image {

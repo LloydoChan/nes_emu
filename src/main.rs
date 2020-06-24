@@ -35,12 +35,16 @@ use std::time::{Duration, Instant};
 use nes_emu::cpu::nes_6502::Nes6502;
 use nes_emu::memory::RAM;
 use nes_emu::ppu::ppu::PPU;
+use nes_emu::ppu::ppu::output_image;
 
 const WIDTH: u32 = 256;
 const HEIGHT: u32 = 240;
 
 const SECONDS_PER_CLOCK: f32 = 1.0 / 1_790_000.0; // 1.79 MHz freq
 const NANOS_PER_CLOCK: u128 = (SECONDS_PER_CLOCK * 1_000_000_000_000.0) as u128;
+
+// NES was 60 FPS
+const NANOS_PER_FRAME : u128 = 1_000_0000_000 / 60;
 
 fn main() {
     // todo
@@ -89,6 +93,9 @@ fn main() {
 
     let mut event_pump = sdl_context.event_pump().unwrap();
     let mut timeTaken: u32 = 0;
+
+    let mut frame_time : u128 = 0;
+
     'running: loop {
         //beginning of loop
 
@@ -101,18 +108,37 @@ fn main() {
         }
 
         cpu.run(&mut ram);
-        ppu.run(&mut ram);
 
-        expand_vram();
+        // 3 cycles for every cpu one
+        for i in 0..3 {
+            ppu.run(&mut ram);
+        }
+
+       
 
         frame_index = (frame_index + 1) % 2;
-        let frameTime = start.elapsed().as_nanos();
-        timeTaken = frameTime as u32;
-        if (frameTime > NANOS_PER_CLOCK) {
+        let cycle_time = start.elapsed().as_nanos();
+        timeTaken = cycle_time as u32;
+
+        frame_time += cycle_time;
+
+        if frame_time > NANOS_PER_FRAME {
+            frame_time = 0;
+            expand_vram(ppu.get_output_image(), &mut pixData);
+            let texRef = &mut frameBuffers[frame_index];
+
+            texRef.update(None, &pixData, (WIDTH * 4) as usize);
+            canvas.copy(&texRef, None, None);
+
+            canvas.present();
             continue;
         }
 
-        let sleepAmount = (NANOS_PER_CLOCK - frameTime) as u32;
+        if cycle_time > NANOS_PER_CLOCK {
+            continue;
+        }
+
+        let sleepAmount = (NANOS_PER_CLOCK - cycle_time) as u32;
         //println!("{}", sleepAmount);
         ::std::thread::sleep(Duration::new(0, sleepAmount)); // 1.79 MHz freq
     }
@@ -135,7 +161,22 @@ fn init_window(context: &mut Sdl, width: u32, height: u32) -> Result<Window, Win
     window
 }
 
-fn expand_vram() {}
+fn expand_vram(mem : &[(u8, u8, u8)], pixData : &mut [u8]) {
+    
+    for i in 0..HEIGHT {
+        for j in 0..WIDTH{
+            // get the relevant byte 
+            let read_offset = i * WIDTH + j;
+            let write_offset = read_offset * 4;
+            let (r, g, b) =  mem[read_offset as usize];
+
+            pixData[write_offset as usize] = r;
+            pixData[(write_offset + 1) as usize] = g;
+            pixData[(write_offset + 2) as usize] = b;
+            pixData[(write_offset + 3) as usize] = 255;
+        }
+    }
+}
 
 fn parse_header( mem : &Box<[u8]>) -> (u8, u8, bool) {
 

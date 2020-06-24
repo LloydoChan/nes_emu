@@ -137,6 +137,7 @@ impl RAM {
             PPU_REGISTERS_START..=PPU_REGISTERS_MIRRORS_END => {
                 let base = address - 0x2000;
                 let indx = base % 8;
+                println!("ppu write {}", indx);
                 self.ppu_reg_write[indx] = 1;
                 self.ppu_regs[indx] = value;
             }
@@ -163,9 +164,7 @@ impl RAM {
             }
             MIRROR_ONE_ROM_START..=MIRROR_ONE_ROM_END => {
                 let base = address - 0x8000;
-                let value = self.rom[base];
-                println!("{:#x} {:#x}", base, value);
-                value
+                self.rom[base]
             }
             MIRROR_TWO_ROM_START..=MIRROR_TWO_ROM_END => {
                 let base = address - 0xC000;
