@@ -37,6 +37,8 @@ pub struct PPU {
     pal_attrib_one : u8,
 
     current_x : u16,
+
+    name_table_addr : usize,
     
 }
 
@@ -122,12 +124,11 @@ impl PPU {
 
     fn do_scan_work(&mut self, mem: &mut RAM){
         // 3 ppu cycles per normal cpu cycle
-        let mut name_table_addr = 0;
         //let mut attrib_table_addr = ;
         //let 0 be -1 or pre render scanline
         match self.current_scan_line {
             0 => {
-                let name_table_addr = self.PPUCTRL.nametableAddress;
+                self.name_table_addr = self.PPUCTRL.nametableAddress;
                 self.current_x = 0;
             },
             1..=240 => {
@@ -137,21 +138,19 @@ impl PPU {
                         let pixel = ( self.current_cycle - 1 ) % 8;
                         if pixel == 0 {
                             // get the values needed!
-                            let index = mem.read_vram_value(name_table_addr);
-
+                            let index = mem.read_vram_value(self.name_table_addr);
                             let offset = 16 * index as usize;
                             self.tileOne = mem.read_vram_value(offset);
                             self.tileTwo = mem.read_vram_value(offset + 8);
-
+                            //println!("{:#x} {:#x} {:#x}", self.tileOne, self.tileTwo, offset);
                             // let's try black and white first?
-                            name_table_addr += 2;
+                            self.name_table_addr += 2;
                         }
 
                         let pixVal = (self.tileOne >> (7 - pixel)) | (self.tileTwo >> (7 - pixel));
 
                         let current_pix = self.current_scan_line * HEIGHT as u16 + self.current_x as u16;
                         self.current_x += 1;
-
                         if(pixVal != 0){
                             self.output.mem[current_pix as usize] = (255, 0, 0); 
                         }else{

@@ -28,6 +28,8 @@ pub struct Nes6502 {
     pc_counter: u16,
     cycles_until_next: u8,
     total_cycles: u16,
+    nmi_vector: u16,
+    irq_vector: u16
 }
 
 impl Nes6502 {
@@ -38,10 +40,21 @@ impl Nes6502 {
             y: 0,
             status_flags: 0x24, // only need 7 bits of this
             stack_pointer: 0xFD,
-            pc_counter: 0xc000,
+            pc_counter: 0,
             cycles_until_next: 0,
             total_cycles: 7,
+            nmi_vector: 0,
+            irq_vector: 0,
         }
+    }
+
+    pub fn init(&mut self, ram: &mut RAM) {
+        //nmi vector
+        self.irq_vector = ram.read_mem_address(0xFFFE);
+        //irq vector
+        self.nmi_vector = ram.read_mem_address(0xFFFA);
+        // reset vector for pc counter
+        self.pc_counter = ram.read_mem_address(0xFFFC);
     }
 
     pub fn run(&mut self, ram: &mut RAM) {
@@ -56,7 +69,7 @@ impl Nes6502 {
     }
 
     fn decode_instruction(&mut self, opcode: u8, ram: &mut RAM) {
-        println!("{:#x} {:#04x} A:{:#04x} X:{:#04x} Y:{:#04x} P:{:#04x} SP:{:#04x} cycles:{}", self.pc_counter, opcode, self.accumulator, self.x, self.y, self.status_flags, self.stack_pointer, self.total_cycles);
+        //println!("{:#x} {:#04x} A:{:#04x} X:{:#04x} Y:{:#04x} P:{:#04x} SP:{:#04x} cycles:{}", self.pc_counter, opcode, self.accumulator, self.x, self.y, self.status_flags, self.stack_pointer, self.total_cycles);
         match opcode {
             // -------------------------------------------------------------------
             // add with carry start ----------------------------------------------

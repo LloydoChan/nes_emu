@@ -19,11 +19,12 @@ pub struct RAM {
     universal_bg_color: u8,
     pallette_colors: [u8; 32],
     num_prg_blocks : usize,
-    num_chr_blocks : usize
+    num_chr_blocks : usize,
+    mapper : u8,
 }
 
 impl RAM {
-    pub fn new(num_prg_blocks : usize, num_chr_blocks : usize) -> RAM {
+    pub fn new(num_prg_blocks : usize, num_chr_blocks : usize, mapper : u8) -> RAM {
         RAM {
             ram: [0; RAM_SIZE],
             rom: vec![0; ROM_BLOCK_SIZE * num_prg_blocks].into_boxed_slice(),
@@ -36,7 +37,8 @@ impl RAM {
             universal_bg_color: 0,
             pallette_colors: [0; 32],
             num_prg_blocks : num_prg_blocks,
-            num_chr_blocks : num_chr_blocks
+            num_chr_blocks : num_chr_blocks,
+            mapper : mapper,
         }
     }
 
@@ -131,13 +133,20 @@ impl RAM {
                 self.rom[base] = value;
             }
             MIRROR_TWO_ROM_START..=MIRROR_TWO_ROM_END => {
-                let base = address - 0xC000;
+                let base =  match self.mapper {
+                    0x0 => {
+                        address - 0xC000
+                    },
+                    _ => {
+                        address
+                    },
+                };
+
                 self.rom[base] = value;
             }
             PPU_REGISTERS_START..=PPU_REGISTERS_MIRRORS_END => {
                 let base = address - 0x2000;
                 let indx = base % 8;
-                println!("ppu write {}", indx);
                 self.ppu_reg_write[indx] = 1;
                 self.ppu_regs[indx] = value;
             }
@@ -167,7 +176,15 @@ impl RAM {
                 self.rom[base]
             }
             MIRROR_TWO_ROM_START..=MIRROR_TWO_ROM_END => {
-                let base = address - 0xC000;
+                let base =  match self.mapper {
+                    0x0 => {
+                        address - 0xC000
+                    },
+                    _ => {
+                        address
+                    },
+                };
+
                 self.rom[base]
             }
             PPU_REGISTERS_START..=PPU_REGISTERS_MIRRORS_END => {
@@ -200,13 +217,14 @@ impl RAM {
 
     // maps vram addresses to other addresses
     fn check_vram_address_read(&self, address: usize) -> u8 {
+        //println!("read addr {:#x}", address);
         match address {
-            PATTERN_TABLE_ZERO_START..=PATTERN_TABLE_ZERO_END => self.ppu_ram[address],
-            PATTERN_TABLE_ONE_START..=PATTERN_TABLE_ONE_END => self.ppu_ram[address],
-            NAME_TABLE_ZERO_START..=NAME_TABLE_ZERO_END => self.ppu_ram[address],
-            NAME_TABLE_ONE_START..=NAME_TABLE_ONE_END => self.ppu_ram[address],
-            NAME_TABLE_TWO_START..=NAME_TABLE_TWO_END => self.ppu_ram[address],
-            NAME_TABLE_THREE_START..=NAME_TABLE_THREE_END => self.ppu_ram[address],
+            PATTERN_TABLE_ZERO_START..=PATTERN_TABLE_ZERO_END => self.chr_ram[address],
+            PATTERN_TABLE_ONE_START..=PATTERN_TABLE_ONE_END => self.chr_ram[address],
+            NAME_TABLE_ZERO_START..=NAME_TABLE_ZERO_END => self.ppu_ram[address - NAME_TABLE_ZERO_START],
+            NAME_TABLE_ONE_START..=NAME_TABLE_ONE_END => self.ppu_ram[address - NAME_TABLE_ZERO_START],
+            NAME_TABLE_TWO_START..=NAME_TABLE_TWO_END => self.ppu_ram[address - NAME_TABLE_ZERO_START],
+            NAME_TABLE_THREE_START..=NAME_TABLE_THREE_END => self.ppu_ram[address - NAME_TABLE_ZERO_START],
             PALLETE_RAM_INDICES_START..=PALLETE_RAM_INDICES_END => {
                 let base = address - PALLETE_RAM_INDICES_START;
                 self.pallette_colors[base]
@@ -222,13 +240,12 @@ impl RAM {
     }
 
     fn check_vram_write(&mut self, address: usize, value: u8) {
+        println!("write addr {:#x} val {:#x}", address, value);
         match address {
-            PATTERN_TABLE_ZERO_START..=PATTERN_TABLE_ZERO_END => self.ppu_ram[address] = value,
-            PATTERN_TABLE_ONE_START..=PATTERN_TABLE_ONE_END => self.ppu_ram[address] = value,
-            NAME_TABLE_ZERO_START..=NAME_TABLE_ZERO_END => self.ppu_ram[address] = value,
-            NAME_TABLE_ONE_START..=NAME_TABLE_ONE_END => self.ppu_ram[address] = value,
-            NAME_TABLE_TWO_START..=NAME_TABLE_TWO_END => self.ppu_ram[address] = value,
-            NAME_TABLE_THREE_START..=NAME_TABLE_THREE_END => self.ppu_ram[address] = value,
+            NAME_TABLE_ZERO_START..=NAME_TABLE_ZERO_END => self.ppu_ram[address - NAME_TABLE_ZERO_START] = value,
+            NAME_TABLE_ONE_START..=NAME_TABLE_ONE_END => self.ppu_ram[address - NAME_TABLE_ZERO_START] = value,
+            NAME_TABLE_TWO_START..=NAME_TABLE_TWO_END => self.ppu_ram[address - NAME_TABLE_ZERO_START] = value,
+            NAME_TABLE_THREE_START..=NAME_TABLE_THREE_END => self.ppu_ram[address - NAME_TABLE_ZERO_START] = value,
             PALLETE_RAM_INDICES_START..=PALLETE_RAM_INDICES_END => {
                 let base = address - PALLETE_RAM_INDICES_START;
                 self.pallette_colors[base] = value;
