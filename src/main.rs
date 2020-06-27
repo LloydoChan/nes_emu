@@ -41,10 +41,10 @@ const WIDTH: u32 = 256;
 const HEIGHT: u32 = 240;
 
 const SECONDS_PER_CLOCK: f32 = 1.0 / 1_790_000.0; // 1.79 MHz freq
-const NANOS_PER_CLOCK: u128 = (SECONDS_PER_CLOCK * 1_000_000_000_000.0) as u128;
+const NANOS_PER_CLOCK: u128 = (SECONDS_PER_CLOCK * 1_000_000_000.0) as u128;
 
 // NES was 60 FPS
-const NANOS_PER_FRAME : u128 = 1_000_0000_000 / 60;
+const NANOS_PER_FRAME : u128 = 1_000_000_000 / 60;
 
 fn main() {
     // todo
@@ -56,9 +56,9 @@ fn main() {
 
     let rom_data = load_binary(rom_path);
     // parse header info
-    let (prg_blocks, chr_blocks, has_trainer, mapper) = parse_header(&rom_data);
+    let (prg_blocks, chr_blocks, has_trainer, mirror, mapper) = parse_header(&rom_data);
 
-    let mut ram: RAM = RAM::new(prg_blocks as usize, chr_blocks as usize, mapper);
+    let mut ram: RAM = RAM::new(prg_blocks as usize, chr_blocks as usize, mapper, mirror);
     ram.load_rom(rom_data);
 
     
@@ -124,7 +124,7 @@ fn main() {
 
         frame_time += cycle_time;
 
-        if frame_time > NANOS_PER_FRAME {
+        if frame_time > NANOS_PER_FRAME  {
             frame_time = 0;
             expand_vram(ppu.get_output_image(), &mut pixData);
             let texRef = &mut frameBuffers[frame_index];
@@ -171,6 +171,7 @@ fn expand_vram(mem : &[(u8, u8, u8)], pixData : &mut [u8]) {
             let read_offset = i * WIDTH + j;
             let write_offset = read_offset * 4;
             let (r, g, b) =  mem[read_offset as usize];
+            //println!("{} {} {}", r, g, b);
 
             pixData[write_offset as usize] = r;
             pixData[(write_offset + 1) as usize] = g;
@@ -180,13 +181,13 @@ fn expand_vram(mem : &[(u8, u8, u8)], pixData : &mut [u8]) {
     }
 }
 
-fn parse_header( mem : &Box<[u8]>) -> (u8, u8, bool, bool, u8) {
+fn parse_header( mem : &Box<[u8]>) -> (u8, u8, bool, u8, u8) {
 
     let num_prg_blocks = mem[4];
     let num_chr_blocks = mem[5];
     let copy_byte = mem[6];
     let has_trainer : bool = (copy_byte & 0x2) != 0;
-    let name_table_mirror = (copy_byte & 0x1);
+    let mirror = (copy_byte & 0x1);
     let ignore_mirror : bool = (copy_byte & 0x8) != 0;
     
     let copy_byte_2 = mem[7];
@@ -196,5 +197,5 @@ fn parse_header( mem : &Box<[u8]>) -> (u8, u8, bool, bool, u8) {
 
     let mapper = mapper_hi_nibble | mapper_low_nibble; 
 
-    (num_prg_blocks, num_chr_blocks, has_trainer, ignore_mirror, mapper)
+    (num_prg_blocks, num_chr_blocks, has_trainer, mirror, mapper)
 }

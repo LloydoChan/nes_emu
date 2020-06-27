@@ -21,10 +21,11 @@ pub struct RAM {
     num_prg_blocks : usize,
     num_chr_blocks : usize,
     mapper : u8,
+    mirror: u8,
 }
 
 impl RAM {
-    pub fn new(num_prg_blocks : usize, num_chr_blocks : usize, mapper : u8) -> RAM {
+    pub fn new(num_prg_blocks : usize, num_chr_blocks : usize, mapper : u8, mirror : u8) -> RAM {
         RAM {
             ram: [0; RAM_SIZE],
             rom: vec![0; ROM_BLOCK_SIZE * num_prg_blocks].into_boxed_slice(),
@@ -39,12 +40,39 @@ impl RAM {
             num_prg_blocks : num_prg_blocks,
             num_chr_blocks : num_chr_blocks,
             mapper : mapper,
+            mirror : mirror,
         }
     }
 
     pub fn clear_read_write_regs(&mut self) {
         self.ppu_reg_write = [0, 0, 0, 0, 0, 0, 0, 0];
         self.ppu_reg_read = [0, 0, 0, 0, 0, 0, 0, 0];
+    }
+
+    fn chr_debug(&self, byte1 : u8, byte2 : u8){
+        for i in 0..8 {
+            print!("{}", ((byte1 >> (7 - i)) & 1) + ((byte2 >> (7 - i)) & 1));
+        }
+        println!("");
+    }
+
+    fn block(&self){
+
+        let mut idx = 0x1000;
+
+        for i in 0..8 {
+            self.chr_debug(self.chr_ram[idx], self.chr_ram[idx + 8]);
+            self.chr_debug(self.chr_ram[idx + 1], self.chr_ram[idx + 9]);
+            self.chr_debug(self.chr_ram[idx + 2], self.chr_ram[idx + 10]);
+            self.chr_debug(self.chr_ram[idx + 3], self.chr_ram[idx + 11]);
+            self.chr_debug(self.chr_ram[idx + 4], self.chr_ram[idx + 12]);
+            self.chr_debug(self.chr_ram[idx + 5], self.chr_ram[idx + 13]);
+            self.chr_debug(self.chr_ram[idx + 6], self.chr_ram[idx + 14]);
+            self.chr_debug(self.chr_ram[idx + 7], self.chr_ram[idx + 15]);
+            idx += 16;
+            println!("");
+        }
+
     }
 
     pub fn load_rom(&mut self, rom_data: Box<[u8]>) {
@@ -58,6 +86,8 @@ impl RAM {
         for i in 0..chr_len {
             self.chr_ram[i] = rom_data[prg_len + i + 16];
         }
+        // self.block();
+        // panic!();
     }
 
     pub fn read_mem_value(&mut self, addr: u16) -> u8 {
@@ -212,7 +242,8 @@ impl RAM {
     }
 
     pub fn read_vram_value(&mut self, address: usize) -> u8 {
-        self.check_vram_address_read(address)
+        let val = self.check_vram_address_read(address);
+        val
     }
 
     // maps vram addresses to other addresses
@@ -222,9 +253,41 @@ impl RAM {
             PATTERN_TABLE_ZERO_START..=PATTERN_TABLE_ZERO_END => self.chr_ram[address],
             PATTERN_TABLE_ONE_START..=PATTERN_TABLE_ONE_END => self.chr_ram[address],
             NAME_TABLE_ZERO_START..=NAME_TABLE_ZERO_END => self.ppu_ram[address - NAME_TABLE_ZERO_START],
-            NAME_TABLE_ONE_START..=NAME_TABLE_ONE_END => self.ppu_ram[address - NAME_TABLE_ZERO_START],
-            NAME_TABLE_TWO_START..=NAME_TABLE_TWO_END => self.ppu_ram[address - NAME_TABLE_ZERO_START],
-            NAME_TABLE_THREE_START..=NAME_TABLE_THREE_END => self.ppu_ram[address - NAME_TABLE_ZERO_START],
+            NAME_TABLE_ONE_START..=NAME_TABLE_ONE_END => {  
+                                                            if self.mirror == 0 {
+                                                                self.ppu_ram[address - NAME_TABLE_ONE_START]
+                                                            } else {
+                                                                self.ppu_ram[address - NAME_TABLE_ZERO_START]
+                                                            }
+                                                         },
+            NAME_TABLE_TWO_START..=NAME_TABLE_TWO_END => {
+                                                                if self.mirror == 0 {
+                                                                    self.ppu_ram[address - NAME_TABLE_ONE_START]
+                                                                } else {
+                                                                    self.ppu_ram[address - NAME_TABLE_TWO_START]
+                                                                }
+                                                         },
+            NAME_TABLE_THREE_START..=NAME_TABLE_THREE_END => { 
+                                                                self.ppu_ram[address - NAME_TABLE_TWO_START]
+                                                             },
+            NAME_TABLE_ZERO_MIRROR_START..=NAME_TABLE_ZERO_MIRROR_END => self.ppu_ram[address - NAME_TABLE_ZERO_MIRROR_START],
+            NAME_TABLE_ONE_MIRROR_START..=NAME_TABLE_ONE_MIRROR_END => {
+                                                             if self.mirror == 0 {
+                                                                self.ppu_ram[address - NAME_TABLE_ONE_MIRROR_START]
+                                                             } else {
+                                                                self.ppu_ram[address - NAME_TABLE_ZERO_MIRROR_START]
+                                                             }
+                                                         },
+            NAME_TABLE_TWO_MIRROR_START..=NAME_TABLE_TWO_MIRROR_END => {
+                                                           if self.mirror == 0 {
+                                                              self.ppu_ram[address - NAME_TABLE_ONE_MIRROR_START]
+                                                           } else {
+                                                                self.ppu_ram[address - NAME_TABLE_TWO_MIRROR_START]
+                                                           }
+                                                          },
+            NAME_TABLE_THREE_MIRROR_START..=NAME_TABLE_THREE_MIRROR_END => { 
+                                                               self.ppu_ram[address - NAME_TABLE_TWO_MIRROR_START]
+                                                             }
             PALLETE_RAM_INDICES_START..=PALLETE_RAM_INDICES_END => {
                 let base = address - PALLETE_RAM_INDICES_START;
                 self.pallette_colors[base]

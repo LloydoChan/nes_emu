@@ -1,6 +1,8 @@
 use crate::mem_map::*;
 use crate::memory::RAM;
 
+use std::io::{stdin, stdout, Read, Write};
+
 const NAME_TABLE_ADDRS: [usize; 4] = [0x2000, 0x2400, 0x2800, 0x2C00];
 const VRAM_INCRS: [usize; 2] = [1, 32];
 const PAT_TABLE_ADDR: [usize; 2] = [0, 0x1000];
@@ -39,7 +41,7 @@ pub struct PPU {
     current_x : u16,
 
     name_table_addr : usize,
-    
+    v_blank : bool,
 }
 
 fn get_bit(byte: u8, index: u8) -> u8 {
@@ -119,43 +121,76 @@ impl PPU {
         }
 
         mem.clear_read_write_regs();
-        self.do_scan_work(mem);
-    }
+            self.do_scan_work(mem);
+        }
 
     fn do_scan_work(&mut self, mem: &mut RAM){
         // 3 ppu cycles per normal cpu cycle
         //let mut attrib_table_addr = ;
         //let 0 be -1 or pre render scanline
+
         match self.current_scan_line {
             0 => {
+                //self.v_blank = false;
                 self.name_table_addr = self.PPUCTRL.nametableAddress;
                 self.current_x = 0;
             },
-            1..=240 => {
+            1..=241 => {
                 // different stages of "work"
                 match self.current_cycle {
+                    0 => {
+                        self.current_x = 0;
+                    },
                     1..=256 => {
                         let pixel = ( self.current_cycle - 1 ) % 8;
                         if pixel == 0 {
                             // get the values needed!
-                            let index = mem.read_vram_value(self.name_table_addr);
-                            let offset = 16 * index as usize;
-                            self.tileOne = mem.read_vram_value(offset);
-                            self.tileTwo = mem.read_vram_value(offset + 8);
-                            //println!("{:#x} {:#x} {:#x}", self.tileOne, self.tileTwo, offset);
-                            // let's try black and white first?
-                            self.name_table_addr += 2;
+                            let index = mem.read_vram_value(self.name_table_addr) as u16;
+
+                            // debug - can we print the chr?
+                            // for every scan line there are 32 ( 8 * 32 = 256) tiles / 256 pixels
+                            // each tile has 16 bytes (8 lines of two byte each - one for each bitplane)
+                            // each scan line goes through 2 of these bytes per tile
+
+                            // each 8 pixel increment moves onto next pair of bytes 16 bytes on
+                            // each scan line is a byte apart from the one above
+
+                            // so offset is scan line * 64 bytes (32 bytes )  plus current tile num 
+
+                            let current_tile_x = self.current_x / 8;
+                            let current_tile_y = (self.current_scan_line - 1) / 8;
+                            let current_row = (self.current_scan_line - 1) % 8;
+
+                            let offset = index + current_row + self.PPUCTRL.bg_pattern_table_addr as u16; //current_tile_x * 16 + current_tile_y * 512 + current_row;
+
+                            //let offset = // + self.PPUCTRL.bg_pattern_table_addr as u16;
+                            self.tileOne = mem.read_vram_value(offset as usize);
+                            self.tileTwo = mem.read_vram_value(offset as usize + 8);
+                            self.name_table_addr += 1;
                         }
 
-                        let pixVal = (self.tileOne >> (7 - pixel)) | (self.tileTwo >> (7 - pixel));
+                        let pixVal = (((self.tileOne >> (7 - pixel)) & 1) * 2) +  ((self.tileTwo >> (7 - pixel)) & 1);
 
-                        let current_pix = self.current_scan_line * HEIGHT as u16 + self.current_x as u16;
-                        self.current_x += 1;
+                        let current_pix = ( self.current_scan_line - 1 ) * WIDTH as u16 + self.current_x as u16;
                         if(pixVal != 0){
-                            self.output.mem[current_pix as usize] = (255, 0, 0); 
+                            // let's try own simple color scheme first?
+                            match pixVal {
+                                1 => {
+                                    self.output.mem[current_pix as usize] = (255, 0, 0); 
+                                },
+                                2 => {
+                                    self.output.mem[current_pix as usize] = (0, 255, 0);
+                                }
+                                3 => {
+                                    self.output.mem[current_pix as usize] = (0, 0, 255);
+                                }
+                                _ => {}
+
+                            }
                         }else{
                             self.output.mem[current_pix as usize] = (0, 0, 0); 
                         }
+                       self.current_x += 1;
                     },
                     257..=320 => {
                         // TODO - for sprites
@@ -176,23 +211,25 @@ impl PPU {
             },
             242..=261 => {
                 // vert blank
+                self.v_blank = true;
+                panic!();
             }
             _=> {
-                panic!();
             }
         }
 
         
         self.current_cycle = (self.current_cycle + 1) % 340;
         if self.current_cycle == 0 {
-            self.current_scan_line = (self.current_scan_line + 1) % 261;
+            self.current_scan_line = (self.current_scan_line + 1) % 241;
         }
+
     }
 
     pub fn updatePpuCtrl(&mut self, byte_val: u8) {
+        println!("{:#b}", byte_val);
         let name_table_idx = byte_val & 0x03;
         self.PPUCTRL.nametableAddress = NAME_TABLE_ADDRS[name_table_idx as usize];
-
         let vram_incr = get_bit(byte_val, 2);
         self.PPUCTRL.VRAM_address_increment = VRAM_INCRS[vram_incr as usize];
 
@@ -263,6 +300,10 @@ impl PPU {
 
     pub fn get_output_image(&self) -> &[(u8,u8,u8)] {
         &self.output.mem
+    }
+
+    pub fn can_scan_out(&self) -> bool {
+        self.v_blank
     }
 }
 

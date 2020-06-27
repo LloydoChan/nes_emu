@@ -87,8 +87,12 @@ pub fn break_force_interrupt(
     test_ram.push_address_on_stack(stack_ptr, *pc_reg);
     test_ram.push_value_on_stack(stack_ptr, *status);
 
+    // get interrupt vector
+    *pc_reg = test_ram.read_mem_address(0xFFFE);
+
     //TODO push pc and status onto stack, load IRQ into PC
     *status |= BREAK_CMD_BIT;
+
 }
 
 pub fn push_acc_on_stack(

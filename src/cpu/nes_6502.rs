@@ -27,7 +27,7 @@ pub struct Nes6502 {
     stack_pointer: u8,
     pc_counter: u16,
     cycles_until_next: u8,
-    total_cycles: u16,
+    total_cycles: u128,
     nmi_vector: u16,
     irq_vector: u16
 }
